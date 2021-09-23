@@ -10,8 +10,8 @@ GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Add two more button 
-GPIO.setup(NUMBER_1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(NUMBER_2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(26, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(19, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 while True:
     time.sleep(0.2)
@@ -33,15 +33,15 @@ while True:
         cmd = 'echo "seek -10" > /home/pi/video_fifo'
         print("Rewind 10 seconds")
         os.system(cmd)
-    elif( not GPIO.input(NUMBER_1)):
+    elif( not GPIO.input(26)):
         print("")
-        print("Button NUMBER_1 has been pressed") 
+        print("Button 26 has been pressed") 
         cmd = 'echo "seek 30 " > /home/pi/video_fifo'
         print("Fast forward 30 seconds")
         os.system(cmd)
-    elif( not GPIO.input(NUMBER_2)):
+    elif( not GPIO.input(19)):
         print("")
-        print("Button NUMBER_2 has been pressed")
+        print("Button 19 has been pressed")
         cmd = 'echo "seek -30" > /home/pi/video_fifo'
         print("Rewind 30 seconds")
         os.system(cmd)
