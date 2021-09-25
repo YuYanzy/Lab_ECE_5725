@@ -1,7 +1,8 @@
 import RPi.GPIO as GPIO
 import pygame     # Import pygame graphics library
-import os    # for OS calls
 import time
+import os    # for OS calls
+
 
 CODERUN = True
 
@@ -14,7 +15,7 @@ GPIO.add_event_detect(17, GPIO.FALLING, callback=GPIO17_callback, bouncetime=300
 
 # Environment Setting 
 os.putenv('SDL_VIDEODRIVER', 'fbcon')   # Display on piTFT
-os.putenv('SDL_FBDEV', '/dev/fb1')   
+os.putenv('SDL_FBDEV', '/dev/fb0')   
 pygame.init()
 
 # Screen Setting
@@ -22,6 +23,8 @@ size = (width, height) = (320, 240)
 # size = (width, height) = (800, 800) 
 screen = pygame.display.set_mode(size)
 black = 0, 0, 0
+FPS = 40
+clock = pygame.time.Clock()
 
 # Big Ball 
 speed_big = [1,1] 
@@ -39,7 +42,8 @@ ballrect_small.bottom = 240
 
 start_time = time.time()
 while (time.time() - start_time <= 360) and CODERUN:  
-    time.sleep(0.02)  
+    # time.sleep(0.02)  
+    clock.tick(FPS)
     ballrect_big = ballrect_big.move(speed_big)    
     if ballrect_big.left < 0 or ballrect_big.right > width:        
         speed_big[0] = -speed_big[0]    
