@@ -31,16 +31,14 @@ buttons_dic = {"Quit":(270, 220), "Start": (50,220)}
 speed_big = [1,1] 
 ball_big = pygame.image.load("magic_ball.png")
 ballrect_big = ball_big.get_rect()
-ballrect_big.left = 192
-ballrect_big.bottom = 128
+ballrect_big.center = (198,100)
 ball_big_radius = 64
 
 # Small Ball
 speed_small = [-2,-2] 
 ball_small = pygame.image.load("soccer-ball.png")
 ballrect_small = ball_small.get_rect()
-ballrect_small.right = 50
-ballrect_small.bottom = 200
+ballrect_small.center = (100,100)
 ball_small_radius = 24
 
 # GPIO Setting
@@ -67,7 +65,7 @@ def check_quit_button_press(position):
         CODERUN = False
         print("Qiut Game!!!")
 
-def check_colloderct():
+def check_colliderect():
     dx = abs(ballrect_big.centerx - ballrect_small.centerx)
     dy = abs(ballrect_big.centery - ballrect_small.centery)
     if( dx < (ball_big_radius + ball_small_radius - 30) and dy < (ball_big_radius + ball_small_radius - 25)):
@@ -90,7 +88,7 @@ def check_run_game():
         if ballrect_small.top < 0 or ballrect_small.bottom > 200:        
             speed_small[1] = -speed_small[1]
 
-        if check_colloderct():
+        if check_colliderect():
             speed_big[0] = - speed_big[0]
             speed_big[1] = - speed_big[1]
             speed_small[0] = - speed_small[0]
