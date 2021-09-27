@@ -26,6 +26,9 @@ screen.fill(BLACK)
 # Button Configuration
 button_font = pygame.font.Font(None, 30)
 buttons_dic = {"Quit":(270, 220), "Start": (50,220)}
+touch_info_font = pygame.font.Font(None, 30)
+# Store pressed positions 
+pressed_positions_list = []
 # Ball Configuration
 # Big Ball 
 speed_big = [1,1] 
@@ -46,6 +49,7 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(17,GPIO.IN,pull_up_down = GPIO.PUD_UP)    
 def GPIO17_callback(channel):
     global CODERUN  
+    print("Quit by Bail-out button!!!")
     CODERUN = False
 GPIO.add_event_detect(17, GPIO.FALLING, callback=GPIO17_callback, bouncetime=300)
 
@@ -94,7 +98,15 @@ def check_run_game():
             speed_small[0] = - speed_small[0]
             speed_small[1] = - speed_small[1]
 
-def draw_picture():
+def refresh_touch_info(position):
+    x, y = position
+    touch_position_info = "touch at " + str(x) + ", " + str(y)
+    touch_info_text_surface = touch_info_font.render(touch_position_info, True, WHITE)
+    touch_info_rect = touch_info_text_surface.get_rect(center=(160,220))
+    screen.blit(touch_info_text_surface, touch_info_rect)
+
+def refresh_game(touch_position):
+    # print("Refresh the Game")
     screen.fill(BLACK)
     # Draw Buttons
     for text, center in buttons_dic.items():
@@ -105,15 +117,40 @@ def draw_picture():
         screen.blit(text_surface, rect)
     # Draw Ball
     screen.blit(ball_big, ballrect_big)
-    screen.blit(ball_small, ballrect_small) 
+    screen.blit(ball_small, ballrect_small)
+    # screen.blit(touch_info_text_surface, touch_info_rect)
+    if (touch_position is not None):
+        refresh_touch_info(touch_position)
+    elif(len(pressed_positions_list) > 0):
+        refresh_touch_info(pressed_positions_list[-1])
+    else:
+        touch_info_text_surface = touch_info_font.render('touch at ', True, WHITE)
+        touch_info_rect = touch_info_text_surface.get_rect(center=(160,220))
+        screen.blit(touch_info_text_surface, touch_info_rect)
     pygame.display.flip()
 
 if __name__ == "__main__":
-    
-    draw_picture()
+    screen.fill(BLACK)
+    # Draw Buttons
+    for text, center in buttons_dic.items():
+        text_surface = button_font.render(text , True, WHITE)
+        # print(text_surface.get_width())
+        # print(text_surface.get_height())
+        rect = text_surface.get_rect(center=center)
+        screen.blit(text_surface, rect)
+    # Draw the touch info
+    touch_info_text_surface = touch_info_font.render('touch at ', True, WHITE)
+    touch_info_rect = touch_info_text_surface.get_rect(center=(160,220))
+    # Draw Ball
+    screen.blit(ball_big, ballrect_big)
+    screen.blit(ball_small, ballrect_small) 
+    screen.blit(touch_info_text_surface, touch_info_rect)
+    pygame.display.flip()
+   
     start_time = time.time()
     while (time.time() - start_time <= 360) and CODERUN:  
         clock.tick(FPS)
+        touch_position = None
     	for event in pygame.event.get(): 
             if(event.type is MOUSEBUTTONDOWN): 
                 # touch_position = pygame.mouse.get_pos()
@@ -123,8 +160,9 @@ if __name__ == "__main__":
             elif(event.type is MOUSEBUTTONUP):
                 touch_position = pygame.mouse.get_pos()
                 print(touch_position)
+                pressed_positions_list.append(touch_position)
                 check_start_button_press(touch_position)
                 check_quit_button_press(touch_position)
         check_run_game()
         # refresh
-        draw_picture()
+        refresh_game(touch_position)

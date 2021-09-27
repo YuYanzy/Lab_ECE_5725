@@ -15,25 +15,25 @@ while True:
     if(not GPIO.input(17)):
         print(" ")
         print("Button 17 has been pressed")
-        cmd = 'echo "pause" > /home/pi/video_fifo'
+        cmd = 'echo "pause" > /home/pi/video_fifo1'
         print("Pause the Video")
         os.system(cmd)
     elif( not GPIO.input(22)):
         print("")
         print("Button 22 has been pressed") 
-        cmd = 'echo "seek 10 " > /home/pi/video_fifo'
+        cmd = 'echo "seek 10 " > /home/pi/video_fifo1'
         print("Fast forward 10 seconds")
         os.system(cmd)
     elif( not GPIO.input(23)):
         print("")
         print("Button 23 has been pressed")
-        cmd = 'echo "seek -10" > /home/pi/video_fifo'
+        cmd = 'echo "seek -10" > /home/pi/video_fifo1'
         print("Rewind 10 seconds")
         os.system(cmd)
     elif( not GPIO.input(27)):
         print("")
         print("Button 27 has been pressed")
-        cmd = 'echo "quit" > /home/pi/video_fifo'
+        cmd = 'echo "quit" > /home/pi/video_fifo1'
         print("Quit the Video")
         os.system(cmd)
         break

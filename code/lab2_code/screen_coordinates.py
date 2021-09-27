@@ -29,6 +29,7 @@ GPIO.setup(17,GPIO.IN,pull_up_down = GPIO.PUD_UP)
 GPIO.setup(17,GPIO.IN,pull_up_down = GPIO.PUD_UP)    
 def GPIO17_callback(channel):
     global CODERUN  
+    print("Quit by Bail-out button!!!")
     CODERUN = False
 GPIO.add_event_detect(17, GPIO.FALLING, callback=GPIO17_callback, bouncetime=300)
 
@@ -41,6 +42,7 @@ def check_quit_button_press(position):
     if y < 230 and y > 170:
         if x < 280 and x > 200:
             global CODERUN
+            print("Quit!!!")
             CODERUN = False
 
 
@@ -66,7 +68,7 @@ if __name__ == "__main__":
 
     start_time = time.time()    
 
-    while CODERUN and (time.time() - start_time <= 10):
+    while CODERUN and (time.time() - start_time <= 360):
     	for event in pygame.event.get(): 
             if(event.type is MOUSEBUTTONDOWN): 
                 # touch_position = pygame.mouse.get_pos()

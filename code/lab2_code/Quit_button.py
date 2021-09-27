@@ -1,6 +1,7 @@
 # Yu Zhang
 # Monday Lab2
 from pygame.locals import *
+import RPi.GPIO as GPIO
 import pygame
 import os
 # Global Flag
@@ -18,7 +19,14 @@ screen = pygame.display.set_mode(size)
 WHITE = 255,255,255
 BLACK = 0,0,0
 screen.fill(BLACK)
-
+# GPIO Setting
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17,GPIO.IN,pull_up_down = GPIO.PUD_UP)    
+def GPIO17_callback(channel):
+    global CODERUN  
+    print("Quit by Bail-out button!!!")
+    CODERUN = False
+GPIO.add_event_detect(17, GPIO.FALLING, callback=GPIO17_callback, bouncetime=300)
 
 def check_quit_button_press(position):
     x,y = position
@@ -26,6 +34,7 @@ def check_quit_button_press(position):
     if y < 230 and y > 170:
         if x < 280 and x > 200:
             global CODERUN
+            print("Quit!!!")
             CODERUN = False
 
 if __name__ == "__main__":
@@ -44,12 +53,13 @@ if __name__ == "__main__":
     while CODERUN:
     	for event in pygame.event.get(): 
             if(event.type is MOUSEBUTTONDOWN): 
-                touch_position = pygame.mouse.get_pos()
-                print(touch_position)
+                # touch_position = pygame.mouse.get_pos()
+                # print(touch_position)
+                pass
             #on mouse press
             elif(event.type is MOUSEBUTTONUP):
                 touch_position = pygame.mouse.get_pos()
-                check_quit_button_press(touch_position)
                 print(touch_position)
+                check_quit_button_press(touch_position)
    
 
