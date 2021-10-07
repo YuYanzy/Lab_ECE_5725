@@ -1,5 +1,5 @@
-# Yu Zhang
-# Monday Lab2
+# Yu Zhang yz2729
+# Lab 2  Date: 09/27/21
 from pygame.locals import *
 import RPi.GPIO as GPIO
 import pygame

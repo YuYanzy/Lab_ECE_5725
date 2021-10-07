@@ -1,3 +1,5 @@
+# Yu Zhang yz2729
+# Lab 2  Date: 09/23/21
 import pygame     # Import pygame graphics library
 import os    # for OS calls
 import time

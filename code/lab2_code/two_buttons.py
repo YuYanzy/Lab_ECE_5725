@@ -1,5 +1,5 @@
-# Yu Zhang
-# Monday Lab2
+# Yu Zhang yz2729
+# Lab 2  Date: 09/27/21
 from pygame.locals import *
 import RPi.GPIO as GPIO
 import pygame
@@ -151,7 +151,7 @@ if __name__ == "__main__":
     while (time.time() - start_time <= 360) and CODERUN:  
         clock.tick(FPS)
         touch_position = None
-    	for event in pygame.event.get(): 
+        for event in pygame.event.get(): 
             if(event.type is MOUSEBUTTONDOWN): 
                 # touch_position = pygame.mouse.get_pos()
                 # print(touch_position)
