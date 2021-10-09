@@ -75,7 +75,7 @@ def left_wheel_start():
     left_duty_cycle = 100
     left_pwm.ChangeDutyCycle(left_duty_cycle)
     elapse_time = time.time() - start_time
-    upload_log(side="left", event_type="Start", elapse_time=elapse_time)
+    upload_log(side="left", event_type="Clkwise", elapse_time=elapse_time)
 
 def left_wheel_stop():
     global left_duty_cycle, left_motion_control_flag, left_direction_control_flag, start_time
@@ -86,21 +86,26 @@ def left_wheel_stop():
     left_motion_control_flag = False
     left_direction_control_flag = True # set the defult direction back to clockwise
     elapse_time = time.time() - start_time
+    # print("111111111")
     upload_log(side="left", event_type="Stop", elapse_time=elapse_time)
 
 def left_wheel_counterclockwise():
-    global left_direction_control_flag, start_time
+    global left_direction_control_flag, start_time, left_duty_cycle
     left_direction_control_flag = False
     GPIO.output(5, GPIO.LOW)
     GPIO.output(6, GPIO.HIGH)
+    left_duty_cycle = 100
+    left_pwm.ChangeDutyCycle(left_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="left", event_type="Counter-Clk", elapse_time=elapse_time)
 
 def left_wheel_clockwise():
-    global left_direction_control_flag, start_time
+    global left_direction_control_flag, start_time, left_duty_cycle
     left_direction_control_flag = True
     GPIO.output(5, GPIO.HIGH)
     GPIO.output(6, GPIO.LOW)
+    left_duty_cycle = 100
+    left_pwm.ChangeDutyCycle(left_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="left", event_type="Clkwise", elapse_time=elapse_time)
 
@@ -112,7 +117,7 @@ def right_wheel_start():
     right_duty_cycle = 100
     right_pwm.ChangeDutyCycle(right_duty_cycle)
     elapse_time = time.time() - start_time
-    upload_log(side="right", event_type="Start", elapse_time=elapse_time)
+    upload_log(side="right", event_type="Clkwise", elapse_time=elapse_time)
 
 def righ_wheel_stop():
     global right_motion_control_flag, right_duty_cycle, right_direction_control_flag, start_time
@@ -126,23 +131,30 @@ def righ_wheel_stop():
     upload_log(side="right", event_type="Stop", elapse_time=elapse_time)
 
 def right_wheel_counterclockwise():
-    global right_direction_control_flag, start_time
+    global right_direction_control_flag, start_time, right_duty_cycle
     right_direction_control_flag = False
     GPIO.output(19, GPIO.LOW)
     GPIO.output(13, GPIO.HIGH)
+    right_duty_cycle = 100
+    right_pwm.ChangeDutyCycle(right_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="right", event_type="Counter-Clk", elapse_time=elapse_time)
 
 def right_wheel_clockwise():
-    global right_direction_control_flag, start_time
+    global right_direction_control_flag, start_time, right_duty_cycle
     right_direction_control_flag = True
     GPIO.output(19, GPIO.HIGH)
     GPIO.output(13, GPIO.LOW)
+    right_duty_cycle = 100
+    right_pwm.ChangeDutyCycle(right_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="right", event_type="Clkwise", elapse_time=elapse_time)
 
 def GPIO17_callback(channel):
-    global left_motion_control_flag
+    global left_motion_control_flag, PANIC_STOP 
+    if PANIC_STOP:
+        print("Please Resume First")
+        return 0
     if not left_motion_control_flag:
         # start the left
         print("Button 17 has been pressed, start running the left wheel")
@@ -153,7 +165,10 @@ def GPIO17_callback(channel):
         left_wheel_stop()
 
 def GPIO22_callback(channel):
-    global left_direction_control_flag, left_motion_control_flag
+    global left_direction_control_flag, left_motion_control_flag, PANIC_STOP
+    if PANIC_STOP:
+        print("Please Resume First")
+        return 0
     if not left_motion_control_flag:
         print("Please start running the left wheel first\n")
         return 0
@@ -167,7 +182,10 @@ def GPIO22_callback(channel):
         left_wheel_clockwise()
 
 def GPIO23_callback(channel):
-    global right_motion_control_flag
+    global right_motion_control_flag, PANIC_STOP
+    if PANIC_STOP:
+        print("Please Resume First")
+        return 0
     if not right_motion_control_flag:
         # start the right
         print("Button 23 has been pressed, start running the right wheel\n")
@@ -178,7 +196,10 @@ def GPIO23_callback(channel):
         righ_wheel_stop()
     
 def GPIO27_callback(channel):
-    global right_direction_control_flag, right_motion_control_flag
+    global right_direction_control_flag, right_motion_control_flag, PANIC_STOP
+    if PANIC_STOP:
+        print("Please Resume First")
+        return 0
     if not right_motion_control_flag:
         print("Please star running the right wheel first\n")
         return 0
@@ -276,6 +297,30 @@ def draw_game():
     pygame.display.flip()
 
 
+def resume_left():
+    global  left_log_dict, left_log_position_hash_dict
+    left_last_command = left_log_dict[left_log_position_hash_dict[2]][0]
+    print("*"* 20)
+    print(left_last_command)
+    if left_last_command == "Stop":
+        left_wheel_stop()
+    elif left_last_command == "Counter-Clk":
+        left_wheel_counterclockwise()
+    elif left_last_command == "Clkwise":
+        left_wheel_clockwise()
+
+def resume_right():
+    global right_log_dict, right_log_position_hash_dict
+    right_last_command = right_log_dict[right_log_position_hash_dict[2]][0]
+    print("*"* 20)
+    print(right_last_command)
+    if right_last_command == "Stop":
+        righ_wheel_stop()
+    elif right_last_command == "Counter-Clk":
+        right_wheel_counterclockwise()
+    elif right_last_command == 'Clkwise':
+        right_wheel_clockwise()
+
 def check_quit_button(touch_position):
     x, y = touch_position
     # Check if the touch position is in the button area
@@ -283,6 +328,12 @@ def check_quit_button(touch_position):
         print("The quit button is pressed, quit the game!\n")
         global CODERUN
         CODERUN = False
+        left_pwm.stop()
+        right_pwm.stop()
+        GPIO.cleanup()
+        pygame.display.quit()
+        pygame.quit()
+        sys.exit(0)
 
 def check_center_button(touch_position):
     x, y = touch_position
@@ -296,8 +347,10 @@ def check_center_button(touch_position):
             righ_wheel_stop()
         else:
             print("The RESUME button is pressed! RESUME!!!\n")
-            left_wheel_start()
-            right_wheel_start()
+            # rusmue
+            resume_left()
+            resume_right()
+            
 
 # def refresh_game():
 #     init_game()

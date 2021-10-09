@@ -23,7 +23,7 @@ GPIO.setup(5, GPIO.OUT)
 GPIO.setup(6, GPIO.OUT)
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 #stopped to start
-frequency = 1
+frequency = 50
 left_pwm = GPIO.PWM(26, frequency)
 right_pwm = GPIO.PWM(16, frequency)
 left_duty_cycle = 0
@@ -37,7 +37,7 @@ PANIC_STOP = False
 START_GAME = False
 GAME_EVENT = 0
 start_time = time.time()
-
+global_counter = 0
 # global flags to control left wheel
 left_motion_control_flag = False
 left_direction_control_flag = True
@@ -53,28 +53,28 @@ right_log_position_hash_dict = {1:(220, 100), 2: (220, 120), 3: (220, 140)}
 
 def upload_log(side, event_type, elapse_time):
     if side == 'left':
-        print("Update the left_log")
+        # print("Update the left_log")
         log_dict = left_log_dict
         has_dict = left_log_position_hash_dict
     else:
-        print("Update the right_log")
+        # print("Update the right_log")
         log_dict = right_log_dict
         has_dict = right_log_position_hash_dict
     log_dict[has_dict[3]] = log_dict[has_dict[2]]
     log_dict[has_dict[2]] = log_dict[has_dict[1]]
     log_dict[has_dict[1]] = [event_type, str(int(elapse_time))]
-    print(log_dict)
-    print('\n')
+    # print(log_dict)
+    # print('\n')
 
 def left_wheel_start():
     global left_duty_cycle, left_motion_control_flag, start_time
     left_motion_control_flag = True
     GPIO.output(5, GPIO.HIGH)
     GPIO.output(6, GPIO.LOW)
-    left_duty_cycle = 50
+    left_duty_cycle = 100
     left_pwm.ChangeDutyCycle(left_duty_cycle)
     elapse_time = time.time() - start_time
-    upload_log(side="left", event_type="Start", elapse_time=elapse_time)
+    upload_log(side="left", event_type="Clkwise", elapse_time=elapse_time)
 
 def left_wheel_stop():
     global left_duty_cycle, left_motion_control_flag, left_direction_control_flag, start_time
@@ -88,18 +88,22 @@ def left_wheel_stop():
     upload_log(side="left", event_type="Stop", elapse_time=elapse_time)
 
 def left_wheel_counterclockwise():
-    global left_direction_control_flag, start_time
+    global left_direction_control_flag, start_time, left_duty_cycle
     left_direction_control_flag = False
     GPIO.output(5, GPIO.LOW)
     GPIO.output(6, GPIO.HIGH)
+    left_duty_cycle = 100
+    left_pwm.ChangeDutyCycle(left_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="left", event_type="Counter-Clk", elapse_time=elapse_time)
 
 def left_wheel_clockwise():
-    global left_direction_control_flag, start_time
+    global left_direction_control_flag, start_time, left_duty_cycle
     left_direction_control_flag = True
     GPIO.output(5, GPIO.HIGH)
     GPIO.output(6, GPIO.LOW)
+    left_duty_cycle = 100
+    left_pwm.ChangeDutyCycle(left_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="left", event_type="Clkwise", elapse_time=elapse_time)
 
@@ -108,10 +112,10 @@ def right_wheel_start():
     right_motion_control_flag = True
     GPIO.output(19, GPIO.HIGH)
     GPIO.output(13, GPIO.LOW)
-    right_duty_cycle = 50
+    right_duty_cycle = 100
     right_pwm.ChangeDutyCycle(right_duty_cycle)
     elapse_time = time.time() - start_time
-    upload_log(side="right", event_type="Start", elapse_time=elapse_time)
+    upload_log(side="right", event_type="Clkwise", elapse_time=elapse_time)
 
 def righ_wheel_stop():
     global right_motion_control_flag, right_duty_cycle, right_direction_control_flag, start_time
@@ -125,43 +129,35 @@ def righ_wheel_stop():
     upload_log(side="right", event_type="Stop", elapse_time=elapse_time)
 
 def right_wheel_counterclockwise():
-    global right_direction_control_flag, start_time
+    global right_direction_control_flag, start_time, right_duty_cycle
     right_direction_control_flag = False
     GPIO.output(19, GPIO.LOW)
     GPIO.output(13, GPIO.HIGH)
+    right_duty_cycle = 100
+    right_pwm.ChangeDutyCycle(right_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="right", event_type="Counter-Clk", elapse_time=elapse_time)
 
 def right_wheel_clockwise():
-    global right_direction_control_flag, start_time
+    global right_direction_control_flag, start_time, right_duty_cycle
     right_direction_control_flag = True
     GPIO.output(19, GPIO.HIGH)
     GPIO.output(13, GPIO.LOW)
+    right_duty_cycle = 100
+    right_pwm.ChangeDutyCycle(right_duty_cycle)
     elapse_time = time.time() - start_time
     upload_log(side="right", event_type="Clkwise", elapse_time=elapse_time)
-
-def move_forward():
-    left_wheel_start()
-    right_wheel_start()
-
-def move_backword():
-    left_wheel_counterclockwise()
-    right_wheel_counterclockwise()
-
-def stop():
-    left_wheel_stop()
-    righ_wheel_stop()
-
-def pivot_left():
-    righ_wheel_stop()
-
-def pivot_right():
-    right_wheel_start()
 
 def GPIO27_callback(channel):
     global CODERUN
     print("Button 27 has been pressed, quit the program\n")
     CODERUN = False
+    left_pwm.stop()
+    right_pwm.stop()
+    GPIO.cleanup()
+    pygame.display.quit()
+    pygame.quit()
+    sys.exit(0)
 
 # Initialize the Pygame 
 pygame.init()
@@ -247,6 +243,31 @@ def draw_game():
     draw_log_history()
     pygame.display.flip()
 
+def resume_left():
+    global  left_log_dict, left_log_position_hash_dict
+    left_last_command = left_log_dict[left_log_position_hash_dict[2]][0]
+    # print("*"* 20)
+    print(left_last_command)
+    if left_last_command == "Stop":
+        left_wheel_stop()
+    elif left_last_command == "Counter-Clk":
+        left_wheel_counterclockwise()
+    elif left_last_command == "Clkwise":
+        left_wheel_clockwise()
+
+def resume_right():
+    global right_log_dict, right_log_position_hash_dict
+    right_last_command = right_log_dict[right_log_position_hash_dict[2]][0]
+    # print("*"* 20)
+    print(right_last_command)
+    if right_last_command == "Stop":
+        righ_wheel_stop()
+    elif right_last_command == "Counter-Clk":
+        right_wheel_counterclockwise()
+    elif right_last_command == 'Clkwise':
+        right_wheel_clockwise()
+    
+
 def check_start_button(touch_position):
     x,y = touch_position
     # Check if the touch position is in the button area
@@ -262,6 +283,13 @@ def check_quit_button(touch_position):
         print("The quit button is pressed, quit the game!\n")
         global CODERUN
         CODERUN = False
+        left_pwm.stop()
+        right_pwm.stop()
+        GPIO.cleanup()
+        pygame.display.quit()
+        pygame.quit()
+        sys.exit(0)
+
 
 def check_center_button(touch_position):
     x, y = touch_position
@@ -276,33 +304,60 @@ def check_center_button(touch_position):
             righ_wheel_stop()
         else:
             print("The RESUME button is pressed! RESUME!!!\n")
-            left_wheel_start()
-            right_wheel_start()
+            # rusmue
+            # reset_counter()
+            resume_left()
+            resume_right()
 
+def move_forward():
+    left_wheel_start()
+    right_wheel_start()
 
-def run_game_event(event_number):
-    if event_number == 0:
-        print("Move the robot forward about 1 foot\n")
-        move_forward()
-    elif event_number == 1:
-        print("Stop\n")
-        stop()
-    elif event_number == 2:
-        print("Move the robot backwards about 1 foot\n")
-        move_backword()
-    elif event_number == 3:
-        print("Pivot left\n")
-        pivot_left()
-    elif event_number == 4:
-        print("Stop\n")
-        stop()
-    elif event_number == 5:
-        print("Pivot right\n")
-        pivot_right()
-    elif event_number == 6:
-        print("Stop\n")
-        stop()
-        print("Back to the top\n")
+def move_backword():
+    left_wheel_counterclockwise()
+    right_wheel_counterclockwise()
+
+def stop():
+    left_wheel_stop()
+    righ_wheel_stop()
+
+def pivot_left():
+    left_wheel_stop()
+
+def pivot_right():
+    left_wheel_start()
+
+def run_game_event():
+    global global_counter
+    if global_counter >=0 and global_counter <= 100:
+        if global_counter == 0:
+            print("Move the robot forward about 1 foot\n")
+            move_forward()
+    elif global_counter > 100 and global_counter <= 150:
+        if global_counter == 101:
+            print("Stop\n")
+            stop()
+    elif global_counter > 150 and global_counter <= 250:
+        if global_counter == 151:
+            print("Move the robot backwards about 1 foot\n")
+            move_backword()
+    elif global_counter > 250 and global_counter <= 300:
+        if global_counter == 251:
+            print("Pivot left\n")
+            pivot_left()
+    elif global_counter > 300 and global_counter <= 350:
+        if global_counter == 301:
+            print("Stop\n")
+            stop()
+    elif global_counter > 350 and global_counter <= 400:
+        if global_counter == 351:
+            print("Pivot right\n")
+            pivot_right()
+    elif global_counter > 400 and global_counter <= 450:
+        if global_counter == 401:
+            print("Stop\n")
+            stop()
+        
 
 
 if __name__ == "__main__":
@@ -323,10 +378,9 @@ if __name__ == "__main__":
                     check_quit_button(touch_position)
                     check_center_button(touch_position)
             if START_GAME:
-                run_game_event(event_number=GAME_EVENT)
-                GAME_EVENT = (GAME_EVENT + 1) % 7
+                run_game_event()
                 draw_game()
-                time.sleep(2)
+                global_counter = (global_counter + 1) % 451
             else:
                 draw_game()
 
