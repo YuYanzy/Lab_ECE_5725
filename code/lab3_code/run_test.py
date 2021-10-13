@@ -311,24 +311,24 @@ def check_center_button(touch_position):
 
 def move_forward():
     left_wheel_clockwise()
-    right_wheel_counterclockwise()
+    right_wheel_clockwise()
     
 
 def move_backword():
     left_wheel_counterclockwise()
-    right_wheel_clockwise()
+    right_wheel_counterclockwise()
 
 def stop():
     left_wheel_stop()
     righ_wheel_stop()
 
-def pivot_left():
-    left_wheel_clockwise()
-    right_wheel_clockwise()
-
 def pivot_right():
-    left_wheel_counterclockwise()
+    left_wheel_clockwise() 
     right_wheel_counterclockwise()
+
+def pivot_left():
+    left_wheel_counterclockwise()
+    right_wheel_clockwise()
 
 def run_game_event():
     global global_counter
