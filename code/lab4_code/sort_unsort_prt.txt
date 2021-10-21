@@ -1,0 +1,18 @@
+size of data = 131072, size of *data = 4
+elapsed time = 9.51075
+
+ Performance counter stats for './sort_v1':
+
+       9516.106342      task-clock:u (msec)       #    0.997 CPUs utilized          
+                 0      context-switches:u        #    0.000 K/sec                  
+                 0      cpu-migrations:u          #    0.000 K/sec                  
+                77      page-faults:u             #    0.008 K/sec                  
+   <not supported>      cycles:u                                                    
+   <not supported>      instructions:u                                              
+   <not supported>      branches:u                                                  
+   <not supported>      branch-misses:u                                             
+
+       9.540050033 seconds time elapsed
+
+       9.517557000 seconds user
+       0.000000000 seconds sys
