@@ -1,0 +1,3 @@
+Linux raspberrypi 5.10.17-v7l+ #1414 SMP Fri Apr 30 13:20:47 BST 2021 armv7l GNU/Linux
+
+Linux raspberrypi 5.10.25-rt35-v7l+ #1 SMP PREEMPT_RT Thu Oct 21 00:39:33 EDT 2021 armv7l GNU/Linux
