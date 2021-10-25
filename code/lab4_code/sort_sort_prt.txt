@@ -1,9 +1,10 @@
+pi@raspberrypi:~/Lab_ECE_5725/code/lab4_code $ perf stat ./sort_v1
 size of data = 131072, size of *data = 4
-elapsed time = 4.04878
+elapsed time = 4.04697
 
  Performance counter stats for './sort_v1':
 
-       4065.863157      task-clock:u (msec)       #    0.997 CPUs utilized          
+       4072.567389      task-clock:u (msec)       #    0.997 CPUs utilized          
                  0      context-switches:u        #    0.000 K/sec                  
                  0      cpu-migrations:u          #    0.000 K/sec                  
                109      page-faults:u             #    0.027 K/sec                  
@@ -12,7 +13,7 @@ elapsed time = 4.04878
    <not supported>      branches:u                                                  
    <not supported>      branch-misses:u                                             
 
-       4.078891382 seconds time elapsed
+       4.085372644 seconds time elapsed
 
-       4.060365000 seconds user
-       0.009976000 seconds sys
+       4.075753000 seconds user
+       0.000000000 seconds sys

@@ -1,0 +1,15 @@
+1. test_rt_v16 without any system loading
+pid 6921's current scheduling policy: SCHED_FIFO
+pid 6921's current scheduling priority: 49
+
+2. test_rt_v16 2500 with system loading
+pid 7683's current scheduling policy: SCHED_FIFO
+pid 7683's current scheduling priority: 49
+
+3.blink_v7
+pid 8757's current scheduling policy: SCHED_OTHER
+pid 8757's current scheduling priority: 0
+
+4.blink_v7 with sys loading
+pid 9265's current scheduling policy: SCHED_OTHER
+pid 9265's current scheduling priority: 0
