@@ -1,4 +1,5 @@
-#! /usr/bin/python
+# Yu Zhang yz2729
+# Lab 3  Date: 10/08/21
 from pygame.locals import *
 import RPi.GPIO as GPIO
 import pygame
@@ -313,7 +314,6 @@ def move_forward():
     left_wheel_clockwise()
     right_wheel_clockwise()
     
-
 def move_backword():
     left_wheel_counterclockwise()
     right_wheel_counterclockwise()

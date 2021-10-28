@@ -1,4 +1,5 @@
-#! /usr/bin/python
+# Yu Zhang yz2729
+# Lab 3  Date: 10/04/21
 import RPi.GPIO as GPIO
 
 from gpiozero import PWMOutputDevice
@@ -12,6 +13,7 @@ GPIO.setmode(GPIO.BCM)
 #setting up PWM
 GPIO.setup(16, GPIO.OUT)
 GPIO.setup(26, GPIO.OUT)
+
 GPIO.setup(19, GPIO.OUT)
 GPIO.setup(13, GPIO.OUT)
 GPIO.setup(5, GPIO.OUT)

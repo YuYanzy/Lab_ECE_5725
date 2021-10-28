@@ -1,4 +1,5 @@
-#! /usr/bin/python
+# Yu Zhang yz2729
+# Lab 3  Date: 10/08/21
 from pygame.locals import *
 import RPi.GPIO as GPIO
 import pygame
@@ -67,6 +68,7 @@ def upload_log(side, event_type, elapse_time):
     print(log_dict)
     print('\n')
 
+
 def left_wheel_start():
     global left_duty_cycle, left_motion_control_flag, start_time
     left_motion_control_flag = True
@@ -86,7 +88,6 @@ def left_wheel_stop():
     left_motion_control_flag = False
     left_direction_control_flag = True # set the defult direction back to clockwise
     elapse_time = time.time() - start_time
-    # print("111111111")
     upload_log(side="left", event_type="Stop", elapse_time=elapse_time)
 
 def left_wheel_counterclockwise():
@@ -300,7 +301,6 @@ def draw_game():
 def resume_left():
     global  left_log_dict, left_log_position_hash_dict
     left_last_command = left_log_dict[left_log_position_hash_dict[2]][0]
-    print("*"* 20)
     print(left_last_command)
     if left_last_command == "Stop":
         left_wheel_stop()
@@ -312,7 +312,6 @@ def resume_left():
 def resume_right():
     global right_log_dict, right_log_position_hash_dict
     right_last_command = right_log_dict[right_log_position_hash_dict[2]][0]
-    print("*"* 20)
     print(right_last_command)
     if right_last_command == "Stop":
         righ_wheel_stop()

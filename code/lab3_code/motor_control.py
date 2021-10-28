@@ -1,9 +1,6 @@
-#! /usr/bin/python
+# Yu Zhang yz2729
+# Lab 3  Date: 10/04/21
 import RPi.GPIO as GPIO
-
-from gpiozero import PWMOutputDevice
-from gpiozero import DigitalOutputDevice
-
 import time 
 
 #setting the GPIO mode
@@ -11,15 +8,11 @@ GPIO.setmode(GPIO.BCM)
 
 #setting the high duration for each stop in frequency/duty cycle
 speed_dic= {"stop": 0, "half": 50, "full": 100}
-
 #setting up PWM
 GPIO.setup(26, GPIO.OUT)
 GPIO.setup(5, GPIO.OUT)
 GPIO.setup(6, GPIO.OUT)
 #stopped to start
-
-
-
 if __name__ == "__main__":
     print("Start at stop\n")
     frequency = 1

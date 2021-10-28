@@ -1,13 +1,10 @@
-#! /usr/bin/python
+# Yu Zhang yz2729
+# Lab 3  Date: 10/04/21
 import RPi.GPIO as GPIO
-
 import time 
-
 #setting up gpio pin for pwm
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(26, GPIO.OUT)
-GPIO.setup(5, GPIO.OUT)
-GPIO.setup(6, GPIO.OUT)
 led_pin = GPIO.PWM(26, 1)
 led_pin.start(50)
 
