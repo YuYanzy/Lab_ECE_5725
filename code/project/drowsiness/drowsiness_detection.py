@@ -1,5 +1,6 @@
 '''
  python3 drowsiness_detection.py --cascade haarcascade_frontalface_default.xml --shape-predictor shape_predictor_68_face_landmarks.dat --alarm 1
+python3 drowsiness_detection.py --cascade haarcascade_frontalface_default.xml --shape-predictor shape_predictor_68_face_landmarks.dat
 '''
 # import the necessary packages
 from imutils.video import VideoStream
@@ -10,6 +11,16 @@ import imutils
 import time
 import dlib
 import cv2
+import os
+os.environ['DISPLAY'] = ':0'
+
+import subprocess
+
+def play_mp3():
+    # subprocess.Popen(['mpg321', "-n 5 -q", 'alarm.mp3',]).wait(timeout=0.5)
+    os.system('espeak -ven+f2 -k5 -s150 --stdout  "ALARM" | aplay')
+    # print("ALARM")
+    
 
 def euclidean_dist(ptA, ptB):
 	# compute and return the euclidean distance between the two
@@ -40,17 +51,17 @@ ap.add_argument("-a", "--alarm", type=int, default=0,
 args = vars(ap.parse_args())
 
 # check to see if we are using GPIO/TrafficHat as an alarm
-if args["alarm"] > 0:
-	from gpiozero import TrafficHat
-	th = TrafficHat()
-	print("[INFO] using TrafficHat alarm...")
+# if args["alarm"] > 0:
+# 	from gpiozero import TrafficHat
+# 	th = TrafficHat()
+# 	print("[INFO] using TrafficHat alarm...")
 
 # define two constants, one for the eye aspect ratio to indicate
 # blink and then a second constant for the number of consecutive
 # frames the eye must be below the threshold for to set off the
 # alarm
 EYE_AR_THRESH = 0.3
-EYE_AR_CONSEC_FRAMES = 16
+EYE_AR_CONSEC_FRAMES = 8
 # initialize the frame counter as well as a boolean used to
 # indicate if the alarm is going off
 COUNTER = 0
@@ -77,6 +88,7 @@ time.sleep(1.0)
 
 # loop over frames from the video stream
 while True:
+	time.sleep(0.2)
 	# grab the frame from the threaded video file stream, resize
 	# it, and convert it to grayscale
 	# channels)
@@ -85,12 +97,16 @@ while True:
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 	# detect faces in the grayscale frame
 	rects = detector.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30),flags=cv2.CASCADE_SCALE_IMAGE)
+	print(len(rects))
+    
     # loop over the face detections
 	for (x, y, w, h) in rects:
+		 
 		# construct a dlib rectangle object from the Haar cascade
 		# bounding box
 		rect = dlib.rectangle(int(x), int(y), int(x + w),
 			int(y + h))
+		
 		# determine the facial landmarks for the face region, then
 		# convert the facial landmark (x, y)-coordinates to a NumPy
 		# array
@@ -102,6 +118,7 @@ while True:
 		rightEye = shape[rStart:rEnd]
 		leftEAR = eye_aspect_ratio(leftEye)
 		rightEAR = eye_aspect_ratio(rightEye)
+   
 		# average the eye aspect ratio together for both eyes
 		ear = (leftEAR + rightEAR) / 2.0
         # compute the convex hull for the left and right eye, then
@@ -120,12 +137,16 @@ while True:
 				# if the alarm is not on, turn it on
 				if not ALARM_ON:
 					ALARM_ON = True
-					# check to see if the TrafficHat buzzer should
-					# be sounded
+			# 		# check to see if the TrafficHat buzzer should
+			# 		# be sounded
 					if args["alarm"] > 0:
-						th.buzzer.blink(0.1, 0.1, 10,
-							background=True)
-				# draw an alarm on the frame
+						# th.buzzer.blink(0.1, 0.1, 10,
+						# 	background=True)
+						# os.system("mpg321 alarm.mp3 -n  10 -q &")
+						print("ALARM")
+						play_mp3()
+						# time.sleep(0.5)
+			# 	# draw an alarm on the frame
 				cv2.putText(frame, "DROWSINESS ALERT!", (10, 30),
 					cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 		# otherwise, the eye aspect ratio is not below the blink
@@ -140,12 +161,12 @@ while True:
 			cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
  
 	# show the frame
-	# cv2.imshow("Frame", frame)
-	# key = cv2.waitKey(1) & 0xFF
+	cv2.imshow("Frame", frame)
+	key = cv2.waitKey(1) & 0xFF
  
-	# # if the `q` key was pressed, break from the loop
-	# if key == ord("q"):
-	# 	break
+	# if the `q` key was pressed, break from the loop
+	if key == ord("q"):
+		break
 # do a bit of cleanup
 cv2.destroyAllWindows()
 vs.stop()
