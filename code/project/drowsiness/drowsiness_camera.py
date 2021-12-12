@@ -3,11 +3,11 @@ import cv2
 import dlib
 import sys
 import time
-# import board
+import board
 import RPi.GPIO as GPIO
 
-# import busio
-# import adafruit_mpr121
+import busio
+import adafruit_mpr121
 import numpy as np
 from parameters import *
 # from threading import Thread
@@ -17,13 +17,13 @@ from imutils import face_utils as face
 from multiprocessing import Queue, Process
 from PIL import Image
 
-from pygame.locals import *
+# from pygame.locals import *
 import RPi.GPIO as GPIO
 import pygame
 
-# i2c = busio.I2C(board.SCL, board.SDA)
+i2c = busio.I2C(board.SCL, board.SDA)
 
-# mpr121 = adafruit_mpr121.MPR121(i2c)
+mpr121 = adafruit_mpr121.MPR121(i2c)
 
 os.environ['DISPLAY'] = ':0'
 # set up the enviroments
@@ -32,16 +32,16 @@ os.environ['DISPLAY'] = ':0'
 # os.putenv('SDL_MOUSEDRV', 'TSLIB') # Track mouse clicks on piTFT
 # os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
 
-# GPIO.setmode(GPIO.BCM)
-# GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-# def GPIO17_callback(channel): 
-#     global CodeRun
-#     GPIO.cleanup()
-#     pygame.display.quit()
-#     pygame.quit()
-#     sys.exit(0)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+def GPIO17_callback(channel): 
+    global CodeRun
+    GPIO.cleanup()
+    pygame.display.quit()
+    pygame.quit()
+    sys.exit(0)
     
-# GPIO.add_event_detect(17, GPIO.FALLING, callback=GPIO17_callback, bouncetime=300)
+GPIO.add_event_detect(17, GPIO.FALLING, callback=GPIO17_callback, bouncetime=300)
 
 
 # pygame.init()
@@ -74,24 +74,25 @@ os.environ['DISPLAY'] = ':0'
 def sound_alarm(sound_queue):
 	# play an alarm sound
     while True:
+        pass
         # time.sleep(0.2)
-        warning_message = sound_queue.get(block=True)
-        print(warning_message)
+        # warning_message = sound_queue.get(block=True)
+        # print(warning_message)
         # if "OFF_HAND" in warning_message.keys() and warning_message["OFF_HAND"]:
-        #     pygame.draw.rect(screen,red,(0,121,159,119))
-        #     screen.blit(wheel_alert, rect_wheel_alert)
+            # pygame.draw.rect(screen,red,(0,121,159,119))
+            # screen.blit(wheel_alert, rect_wheel_alert)
         # else:
         #     pygame.draw.rect(screen,black,(0,121,159,119))
-        if "DROWSY" in warning_message.keys():
-            if warning_message["DROWSY"] or warning_message["YAWN"]:
-                os.system('espeak -ven+f2 -k5 -s150 --stdout  "Wake Up, please" | aplay ')
-            #     pygame.draw.rect(screen,red,(0,0,159,119))
-            #     screen.blit(drowsy_alert, rect_drowsy_alert)
-            # else:
-            #     pygame.draw.rect(screen,black,(0,0,159,119))
+        # if "DROWSY" in warning_message.keys():
+        #     if warning_message["DROWSY"] or warning_message["YAWN"]:
+        #         os.system('espeak -ven+f2 -k5 -s150 --stdout  "Wake Up, please" | aplay ')
+        #         pygame.draw.rect(screen,red,(0,0,159,119))
+        #         screen.blit(drowsy_alert, rect_drowsy_alert)
+        #     else:
+        #         pygame.draw.rect(screen,black,(0,0,159,119))
 
-            if warning_message["DISTRACTED"]:
-                os.system('espeak -ven+f2 -k5 -s150 --stdout  "Focus on the road, please" | aplay ')
+        #     if warning_message["DISTRACTED"]:
+        #         os.system('espeak -ven+f2 -k5 -s150 --stdout  "Focus on the road, please" | aplay ')
         #         pygame.draw.rect(screen,red,(161,0,159,119))
         #         screen.blit(distracted_alert, rect_distracted_alert)
         #     else:
@@ -270,18 +271,18 @@ def facial_processing(image_queue, process_queue, sound_queue):
   
 	#if the user's face is not focused on the road, the eyes/mouth features cannot be computed
         else:
-            # distracted = False
+            distracted = False
             if not distracton_initialized:
                 distracton_start_time=time.time()
                 distracton_initialized=True
 	    #checks if the user's eyes are off the road after a sufficient number of frames
-            if time.time()- distracton_start_time> DISTRACTION_INTERVAL and distracton_initialized:
-        #displays on screen that the driver's eyes are off the road
-                distracted = True
-                cv2.putText(frame, "PLEASE KEEP EYES ON ROAD", (10, 30),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                    # time.sleep(3.1)
-                    # distracton_initialized= False
+                if time.time()- distracton_start_time> DISTRACTION_INTERVAL and distracton_initialized:
+            #displays on screen that the driver's eyes are off the road
+                    distracted = True
+                    cv2.putText(frame, "PLEASE KEEP EYES ON ROAD", (10, 30),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    time.sleep(3.1)
+                    distracton_initialized= False
                 
 
         # pass the frame to image_get
@@ -293,19 +294,19 @@ def facial_processing(image_queue, process_queue, sound_queue):
         sound_queue.get() if sound_queue.qsize() > 1 else time.sleep(0.01)
 	
 
-# def wheel_detection(sound_queue):
-#     while True:
-#         value_list = [mpr121[0].value, mpr121[1].value, mpr121[2].value, mpr121[3].value]
-#         if any(value_list):
-#             # print('Detected')
-#             hand_off_alarm = False
-#         else:
-#             # print('Not detected')
-#             hand_off_alarm = True
-#         message_dict = {"OFF_HAND": hand_off_alarm} 
+def wheel_detection(sound_queue):
+    while True:
+        value_list = [mpr121[0].value, mpr121[1].value, mpr121[2].value, mpr121[3].value]
+        if any(value_list):
+            # print('Detected')
+            hand_off_alarm = False
+        else:
+            # print('Not detected')
+            hand_off_alarm = True
+        message_dict = {"OFF_HAND": hand_off_alarm} 
         
-#         sound_queue.put(message_dict)
-#         sound_queue.get() if sound_queue.qsize() > 1 else time.sleep(0.01)
+        sound_queue.put(message_dict)
+        sound_queue.get() if sound_queue.qsize() > 1 else time.sleep(0.01)
     
 
 if __name__=='__main__':
@@ -321,16 +322,16 @@ if __name__=='__main__':
     process3.daemon = True
     process4 = Process(target=sound_alarm, args=(sound_queue,))
     process4.daemon = True
-    # process5 = Process(target=wheel_detection, args=(sound_queue,))
-    # process5.daemon = True
+    process5 = Process(target=wheel_detection, args=(sound_queue,))
+    process5.daemon = True
     process1.start()
     process2.start()
     process3.start()
     process4.start()
-    # process5.start()
+    process5.start()
     process1.join()
     process2.join()
     process3.join()
     process4.join()
-    # process5.join()
+    process5.join()
     print("End All Process!")
