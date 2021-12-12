@@ -50,7 +50,7 @@ if __name__=='__main__':
                     f.write("HAND_ON_WHEEL\n")
             else:
                 counter += 1
-                if counter >= 10:
+                if counter >= 15:
                     alarm = True
                     print('Not detected')
                     f.write("HAND_OFF_WHEEL\n")

@@ -59,6 +59,20 @@ def get_eye_aspect_ratio(eye):
     #returns EAR
     return (vertical_1+vertical_2)/(horizontal*2)
 
+#computes rect for eye
+#def eye_rect(eye):
+#   x1 = eye[0]
+#   x2 = eye[3]
+#   y1 = eye[1]
+#   y2 = eye[5]
+#   return [x1, x2, y1, y2]
+
+# lerect = eye_rect(leftEye)
+# eye_frame = frame[lerect[0]:lerect[1], lerect[2]:lerect[3]]
+# cv2.imshow('eye_frame', eye_frame)
+# gray2 = cv2.cvtColor(crop_frame, cv2.COLOR_BGR2GRAY)
+
+
 #computes the mouth aspect ratio (mar)
 def get_mouth_aspect_ratio(mouth):
     # mouth landmarks (x, y)-coordinates
@@ -183,7 +197,7 @@ def facial_processing(image_queue, process_queue, sound_queue):
 	    #checks if user is yawning
             if mar > MOUTH_DROWSINESS_THRESHOLD:
                 yawn_counter += 1
-                if yawn_counter >= 10:
+                if yawn_counter >= 5:
                     yawn = True
                     print("YAWN")
                     f.write("YAWN\n")
@@ -207,6 +221,10 @@ def facial_processing(image_queue, process_queue, sound_queue):
                 f.write("EYE_OFF_ROAD\n")
                 print("EYE_OFF_ROAD")
                 distracted = True
+                drowsy = False
+                yawn = False
+                drowsy_counter = 0
+                yawn_counter = 0
                 distracted_counter = 0
                 # alarm_message = "Distracting"
                 # sound_queue.put(alarm_message)

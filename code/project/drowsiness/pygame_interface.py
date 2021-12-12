@@ -73,19 +73,17 @@ def draw_interface():
 
 def update_interface():
     global CODERUN
-    
-    
+
     while CODERUN:
-        time.sleep(0.25)
+        # time.sleep(0.25)
         current_line = speed_file.readline()
         print(current_line)
         current_speed = 0
         if current_line != "":
             current_speed = float(current_line.split( )[1])
-        
+        f = open('message.txt', 'r')
+        lines = f.readlines()
         if current_speed > 0:
-            f = open('message.txt', 'r')
-            lines = f.readlines()
             if len(lines) > 0:
                 last_line = lines[-1]
                 print(last_line)
@@ -103,6 +101,8 @@ def update_interface():
                 if last_line == "EYE_OFF_ROAD\n":
                     pygame.draw.rect(screen,red,(300,200,300,300))
                     screen.blit(distracted_alert, rect_distracted_alert)
+                    pygame.draw.rect(screen,black,(0,200,300,300))
+                    pygame.draw.rect(screen,black,(0,500,300,300))
                     cmd = 'espeak -ven+f2 -k5 -s150 --stdout  "Distracted" | aplay '
                 if last_line == "EYE_ON_ROAD\n":
                     pygame.draw.rect(screen,black,(300,200,300,300))
@@ -125,12 +125,12 @@ def update_interface():
                 
                 if cmd != "":
                     os.system(cmd)
-            f.close()
-            w = open('message.txt', 'w')
-            w.close()
+            
         else:
             screen.fill(black)
-            
+        f.close()
+        w = open('message.txt', 'w')
+        w.close()  
         draw_interface()  
         
     
