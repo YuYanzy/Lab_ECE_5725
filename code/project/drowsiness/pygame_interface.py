@@ -3,7 +3,7 @@ import os
 import pygame
 import sys
 import time
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
 # set up the enviroments
 # os.putenv('SDL_VIDEODRIVER', 'fbcon') # Display on piTFT
@@ -15,22 +15,22 @@ import RPi.GPIO as GPIO
 CODERUN = True
 
 #setting the GPIO mode
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# GPIO.setmode(GPIO.BCM)
+# GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 
 speed_file = open('speed_log.txt', 'r')
 
 
-def GPIO27_callback(channel):
-    global CODERUN
-    print("Button 27 has been pressed, quit the pygame_interface program\n")
-    CODERUN = False
-    GPIO.cleanup()
-    pygame.display.quit()
-    pygame.quit()
-    speed_file.close()
-    sys.exit(0)
+# def GPIO27_callback(channel):
+#     global CODERUN
+#     print("Button 27 has been pressed, quit the pygame_interface program\n")
+#     CODERUN = False
+#     GPIO.cleanup()
+#     pygame.display.quit()
+#     pygame.quit()
+#     speed_file.close()
+#     sys.exit(0)
     
     
 pygame.init()
@@ -63,15 +63,15 @@ info_font = pygame.font.Font(None,20)
 def draw_interface():
     global speed_info, drowsy_counter, distracted_counter, yawn_counter, wheel_counter
     speed_surface = info_font.render(speed_info,False,white)
-    screen.blit(speed_surface,(160,20))
+    screen.blit(speed_surface,(100,20))
     drowsy_counter_surface = info_font.render("Drowsy: " + str(drowsy_counter),False,white)
-    screen.blit(drowsy_counter_surface,(140,70))
+    screen.blit(drowsy_counter_surface,(90,120))
     distracted_counter_surface = info_font.render("Distracted: " + str(distracted_counter),False,white)
-    screen.blit(distracted_counter_surface,(300,70))
+    screen.blit(distracted_counter_surface,(230,120))
     yawn_counter_surface = info_font.render("Yawn: " + str(yawn_counter),False,white)
-    screen.blit(yawn_counter_surface,(140,220))
+    screen.blit(yawn_counter_surface,(100,220))
     wheel_counter_surface = info_font.render("Wheel: " + str(wheel_counter),False,white)
-    screen.blit(wheel_counter_surface,(300,220))
+    screen.blit(wheel_counter_surface,(255,220))
     
     pygame.draw.line(screen, white, [0,0], [320,0], 3)
     pygame.draw.line(screen, white, (320,0), (320,240), 3)
@@ -80,7 +80,7 @@ def draw_interface():
     
     pygame.draw.line(screen, white, [0, 40], [320, 40], 3)
     pygame.draw.line(screen, white, [0, 140], [320, 140], 3)
-    pygame.draw.line(screen, white, [160, 40], [160, 200], 3)
+    pygame.draw.line(screen, white, [160, 40], [160, 240], 3)
     pygame.display.flip()
 
 
@@ -88,12 +88,14 @@ def update_interface():
     global CODERUN
     global speed_info, drowsy_counter, distracted_counter, yawn_counter, wheel_counter
     while CODERUN:
-        # time.sleep(0.25)
+        time.sleep(0.1)
+        screen.fill(black)
         current_line = speed_file.readline()
         print(current_line)
         current_speed = 0
         if current_line != "":
             current_speed = float(current_line.split( )[1])
+            current_speed = round(current_speed,2)
             speed_info = "Current speed: " + str(current_speed) + " mph"
         f = open('message.txt', 'r')
         lines = f.readlines()
@@ -144,8 +146,8 @@ def update_interface():
                 if cmd != "":
                     os.system(cmd)
             
-        else:
-            screen.fill(black)
+        # else:
+        #     screen.fill(black)
         f.close()
         w = open('message.txt', 'w')
         w.close()  
@@ -154,7 +156,7 @@ def update_interface():
     
 
 if __name__ == "__main__":
-    GPIO.add_event_detect(27, GPIO.FALLING, callback=GPIO27_callback, bouncetime=500)
+    # GPIO.add_event_detect(27, GPIO.FALLING, callback=GPIO27_callback, bouncetime=500)
     draw_interface()
     txt_file = open('message.txt', 'w')
     txt_file.close()
