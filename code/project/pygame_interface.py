@@ -44,7 +44,7 @@ red = 255,0,0
 
 drowsy_alert = my_font.render("Drowsy", True, white)
 rect_drowsy_alert = drowsy_alert.get_rect(center = (80,90))
-distracted_alert = my_font.render("Looking Away", True, white)
+distracted_alert = my_font.render("Gaze Away", True, white)
 rect_distracted_alert = distracted_alert.get_rect(center = (240,90))
 head_alert = my_font.render("Head", True, white)
 rect_head_alert = head_alert.get_rect(center = (80, 190))
@@ -102,10 +102,10 @@ def draw_interface():
     screen.blit(speed_surface,(100,20))
     drowsy_counter_surface = info_font.render("Drowsy: " + str(drowsy_counter),False,white)
     screen.blit(drowsy_counter_surface,(90,120))
-    distracted_counter_surface = info_font.render("Distracted: " + str(distracted_counter),False,white)
+    distracted_counter_surface = info_font.render("Gaze away: " + str(distracted_counter),False,white)
     screen.blit(distracted_counter_surface,(230,120))
-    head_counter_surface = info_font.render("Head: " + str(head_counter),False,white)
-    screen.blit(head_counter_surface,(100,220))
+    head_counter_surface = info_font.render("Face away: " + str(head_counter),False,white)
+    screen.blit(head_counter_surface,(70,220))
     wheel_counter_surface = info_font.render("Wheel: " + str(wheel_counter),False,white)
     screen.blit(wheel_counter_surface,(255,220))
     

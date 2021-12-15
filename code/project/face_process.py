@@ -160,21 +160,27 @@ def facial_processing(image_queue, process_queue, sound_queue):
                 lerect = eye_rect(leftEye)
                 #calculate x mid distance of left eye
                 mid = distance.euclidean(lerect[0],lerect[1])/2
+                #crop each frame to only show left eye
                 eye_frame = frame[lerect[2]:lerect[3], lerect[0]:lerect[1]]
+                #inversion & greyscale
                 eye_frame = cv2.bitwise_and(eye_frame, eye_frame)
                 gray2     = cv2.cvtColor(eye_frame, cv2.COLOR_BGR2GRAY)
+                #adaptive thresholding to delineate iris from white of eyes
                 th_left   = cv2.adaptiveThreshold(gray2, 255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 21, 45)
+                #find contours of iris
                 cnts, _   = cv2.findContours(th_left, cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
                 try:
                     cnt = max(cnts, key = cv2.contourArea)
-                    # calculate moments of binary image
+                    #calculate moments of binary image
                     M = cv2.moments(cnt)
-                    # calculate x coordinate of center
+                    #calculate x/y coordinate of contour center 
                     cX = int(M["m10"]/ M["m00"])
                     cY = int(M['m01']/M['m00'])
                     cv2.circle(eye_frame, (cX, cY), 7, (255, 255, 0), 2)
+                    #if the absolute difference between the mid distance and the iris center is > 10 ...
                     if abs(mid-cX) > 10:            
                         print("Looking Away")
+                        #person is looking away and start counter
                         eye_track_counter += 1
                         if eye_track_counter > 4: 
                             eye_track = True
