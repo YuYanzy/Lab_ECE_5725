@@ -3,7 +3,7 @@ import os
 import pygame
 import sys
 import time
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
 # set up the enviroments
 # os.putenv('SDL_VIDEODRIVER', 'fbcon') # Display on piTFT
@@ -15,21 +15,21 @@ import RPi.GPIO as GPIO
 CODERUN = True
 
 #setting the GPIO mode
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# GPIO.setmode(GPIO.BCM)
+# GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 speed_file = open('speed_log.txt', 'r')
 
 
-def GPIO27_callback(channel):
-    global CODERUN
-    print("Button 27 has been pressed, quit the pygame_interface program\n")
-    CODERUN = False
-    GPIO.cleanup()
-    pygame.display.quit()
-    pygame.quit()
-    speed_file.close()
-    sys.exit(0)
+# def GPIO27_callback(channel):
+#     global CODERUN
+#     print("Button 27 has been pressed, quit the pygame_interface program\n")
+#     CODERUN = False
+#     GPIO.cleanup()
+#     pygame.display.quit()
+#     pygame.quit()
+#     speed_file.close()
+#     sys.exit(0)
     
     
 pygame.init()
@@ -197,14 +197,14 @@ def update_interface():
             wheel_off = False
                 
         f.close()
-        # w = open('message.txt', 'w')
-        # w.close()  
+        w = open('message.txt', 'w')
+        w.close()  
         draw_interface()  
         
     
 
 if __name__ == "__main__":
-    GPIO.add_event_detect(27, GPIO.FALLING, callback=GPIO27_callback, bouncetime=500)
+    # GPIO.add_event_detect(27, GPIO.FALLING, callback=GPIO27_callback, bouncetime=500)
     draw_interface()
     txt_file = open('message.txt', 'w')
     txt_file.close()
