@@ -5,7 +5,6 @@ import sys
 import time
 import numpy as np
 from parameters import *
-# from threading import Thread
 from datetime import datetime
 from scipy.spatial import distance
 from imutils import face_utils as face
@@ -64,17 +63,6 @@ def eye_rect(eye):
     y2 = eye[5][1]
     return [x1, x2, y1, y2]
 
-#computes the mouth aspect ratio (mar)
-def get_mouth_aspect_ratio(mouth):
-    # mouth landmarks (x, y)-coordinates
-    horizontal=distance.euclidean(mouth[0],mouth[4])
-    vertical=0
-    for coord in range(1,4):
-        vertical+=distance.euclidean(mouth[coord],mouth[8-coord])
-    #return MAR
-    return vertical/(horizontal*3)
-
-
 def image_put(image_queque):
     global CODERUN
     while CODERUN:
@@ -83,7 +71,7 @@ def image_put(image_queque):
         
 def image_get(process_queue):
     os.environ['DISPLAY'] = ":0.0"
-    print(os.environ['DISPLAY'])
+    # print(os.environ['DISPLAY'])
     global CODERUN
     while CODERUN:
         frame = process_queue.get()
@@ -93,7 +81,6 @@ def image_get(process_queue):
 	# # if the `q` key was pressed, break from the loop
         if key == ord("q"):
             break
-        #  pass          
 
 # Facial processing
 def facial_processing(image_queue, process_queue, sound_queue):
