@@ -5,13 +5,14 @@ import argparse
 import obd # need python-OBD library, install using `pip install obd`
 
 # Argument parser
-parser = argparse.ArgumentParser()
-parser.add_argument("portstr", nargs='?', default="/dev/rfcomm0", help="The serial device file or COM port of the OBDII adapter")
-args = parser.parse_args()
+# parser = argparse.ArgumentParser()
+# parser.add_argument("portstr", nargs='?', default="/dev/rfcomm0", help="The serial device file or COM port of the OBDII adapter")
+# args = parser.parse_args()
 
-# Serial device to communicate with
-port = args.portstr
+# # Serial device to communicate with
+# port = args.portstr
 
+device = "/dev/rfcomm0"
 # Set of commands to query
 cmd_dict = { 'RPM': obd.commands.RPM, 
 			 'SPEED': obd.commands.SPEED,
@@ -23,9 +24,9 @@ for key, cmd in cmd_dict.items():
 
 # Connect to the OBDII adapter
 try:
-	if port is not None:
+	if device is not None:
 		# connect to the specified serial device
-		connection = obd.Async(port)
+		connection = obd.Async(device)
 	else:
 		# connect to a serial device automatically
 		connection = obd.Async()
@@ -61,7 +62,7 @@ connection.start()
 
 try:
 	while True:
-		f = open("speed_log.txt", "a+") 
+		f = open("speed.txt", "a+") 
 		os.system('clear')
 		print("Car Stats:")
 		for key, cmd in cmd_dict.items():

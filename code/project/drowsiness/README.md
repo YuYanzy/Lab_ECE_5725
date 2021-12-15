@@ -1,3 +1,7 @@
+# Connect OBD
+mac_address: 00:1D:A5:23:15:51 
+sudo rfcomm bind /dev/rfcomm0 00:1D:A5:23:15:51
+
 # Pygame_interface
 ```
 ssh -X pi@ip_address

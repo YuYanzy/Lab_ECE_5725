@@ -6,10 +6,10 @@ import time
 import RPi.GPIO as GPIO
 
 # set up the enviroments
-# os.putenv('SDL_VIDEODRIVER', 'fbcon') # Display on piTFT
-# os.putenv('SDL_FBDEV', '/dev/fb1')
-# os.putenv('SDL_MOUSEDRV', 'TSLIB') # Track mouse clicks on piTFT
-# os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
+os.putenv('SDL_VIDEODRIVER', 'fbcon') # Display on piTFT
+os.putenv('SDL_FBDEV', '/dev/fb0')
+os.putenv('SDL_MOUSEDRV', 'TSLIB') # Track mouse clicks on piTFT
+os.putenv('SDL_MOUSEDEV', '/dev/input/touchscreen')
 
 
 CODERUN = True
@@ -18,7 +18,7 @@ CODERUN = True
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-speed_file = open('speed_log.txt', 'r')
+
 
 
 def GPIO27_callback(channel):
@@ -127,7 +127,9 @@ def update_interface():
     global drowsy, distracted, head_off, wheel_off
     while CODERUN:
         # time.sleep(0.1)
-        current_line = speed_file.readline()
+        # speed_lines = 
+        speed_file = open('speed.txt', 'r')
+        current_line = speed_file.readlines()[-1]
         print(current_line)
         current_speed = 0
         if current_line != "":
@@ -197,8 +199,8 @@ def update_interface():
             wheel_off = False
                 
         f.close()
-        # w = open('message.txt', 'w')
-        # w.close()  
+        w = open('message.txt', 'w')
+        w.close()  
         draw_interface()  
         
     
