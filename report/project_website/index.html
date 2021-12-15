@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Driver Monitor</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <link href="../../assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet"> -->
+
+    <!-- Custom styles for this template -->
+    <link href="starter-template.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- <script src="../../assets/js/ie-emulation-modes-warning.js"></script> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="http://fred-wang.github.io/mathjax.js/mpadded-min.js"></script>
+    <script src="http://fred-wang.github.io/mathml.css/mspace.js"></script>
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Driver Monitor</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#obj">Project Objective</a></li>
+            <li><a href="#design">Design</a></li>
+            <li><a href="#drawings">Drawings & Testing</a></li>
+            <!-- <li><a href="#testing">Testing</a></li> -->
+            <li><a href="#result">Result</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="starter-template">
+        <h1>Driver Monitor</h1>
+        <p class="lead">ECE 5725 FINAL PROJECT - FALL 2021<br> Yu Zhang and Sirena Depue</p>
+      </div>
+
+      <hr>
+      <div class="center-block">
+          <iframe width="640" height="360" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+          <h4 style="text-align:center;">Demonstration Video</h4>
+      </div>
+
+      <hr id="intro">
+
+      <div style="text-align:center;">
+              <h2>Introduction</h2>
+              <p style="text-align: left;padding: 0px 30px;">The purpose of this project is to create a self-contained system that monitors and alerts the driver when distracted. There are several categories within ‘distracted driving’ that we considered. Using OpenCV and DLib to detect a face and extract facial features from picamera footage, we can detect whether the driver is drowsy, is facing away from the road, or is looking away from the road. In addition, a capacitive touch sensor is used to detect whether the driver’s hands are on the steering wheel. An OBDII scanner is used to log the speed of the vehicle in real-time. To avoid unnecessary alarms, the alarms are paused when the car is safely stopped.</p>
+              <p style="text-align: left;padding: 0px 30px;">Additionally, there are time thresholds that must be exceeded before an alarm goes off. The triggering of the alarms are also reflected in a basic piTFT display. The following report outlines the implementation and testing of each feature and suggested future improvements. </p>
+      </div>
+
+    <hr id='obj'>
+
+      <div class="row">
+          <div class="col-md-4" style="text-align:center;">
+          <img class="img-rounded" src="pics/idea.png" alt="Interface" width="400" height="200">
+          </div>
+          <div class="col-md-8" style="font-size:18px;">
+          <h2>Project Objective:</h2>
+          <ul>
+              <li>Driver monitoring, including face-away detection, drowsiness detection, eye tracking and steering wheel detection</li>
+              <li>Connecting to the car and monitors vehicle speed in real time</li>
+              <li>Warning drivers in the interface after events recognition</li>
+          </ul>
+          </div>
+      </div>
+
+    <hr id='design'>
+
+      <div style="text-align:center;">
+              <h2>Design & Testing</h2>
+              <p style="text-align: left;">
+                <ol style="text-align:justify">
+
+                  <li><strong> Drowsiness Detection</strong><br />
+                    <p>The drowsiness detection feature requires the use of a Pi camera. We use OpenCV to detect a face and extract facial features from the camera. Then we apply Dlib's facial landmark detection to detect the eyes and use the the Eye Aspect Ration(EAR) algorithm, which was introduced by Soukupová and Čech’s in their 2017 paper<sup><a>[1]</a></sup>, to determine whether the driver is drowsy.</p>
+                    <p>The EAR value can be calculated using the following fomula. When the eys is fully open, the EAR value should be larger than a pre-defined threshold. And when the eye is closed, the EAR value decreases and tends to zero, which means that it must be less than our pre-defined threshold. </p>
+                    <p style="text-align:center">
+                      <math xmlns='http://www.w3.org/1998/Math/MathML'>
+                        <mi> E </mi>
+                        <mi> A </mi>
+                        <mi> R </mi>
+                        <mo> = </mo>
+                        <mfrac>
+                          <mrow>
+                            <mrow>
+                              <mo> ∥ </mo>
+                                <msub>
+                                  <mrow>
+                                    <mi> p </mi>
+                                  </mrow>
+                                  <mrow>
+                                    <mn> 2 </mn>
+                                  </mrow>
+                                </msub>
+                                <mo> - </mo>
+                                <msub>
+                                  <mrow>
+                                    <mi> p </mi>
+                                  </mrow>
+                                  <mrow>
+                                    <mn> 6 </mn>
+                                  </mrow>
+                                </msub>
+                              <mo> ∥ </mo>
+                            </mrow>
+                            <mo> + </mo>
+                            <mrow>
+                              <mo> ∥ </mo>
+                                <mi> B </mi>
+                                <mo> - </mo>
+                                <msub>
+                                  <mrow>
+                                    <mi> p </mi>
+                                  </mrow>
+                                  <mrow>
+                                    <mn> 5 </mn>
+                                  </mrow>
+                                </msub>
+                              <mo> ∥ </mo>
+                            </mrow>
+                          </mrow>
+                          <mrow>
+                            <mn> 2 </mn>
+                            <mrow>
+                              <mo> ∥ </mo>
+                                <msub>
+                                  <mrow>
+                                    <mi> P </mi>
+                                  </mrow>
+                                  <mrow>
+                                    <mn> 1 </mn>
+                                  </mrow>
+                                </msub>
+                                <mo> - </mo>
+                                <msub>
+                                  <mrow>
+                                    <mi> p </mi>
+                                  </mrow>
+                                  <mrow>
+                                    <mn> 4 </mn>
+                                  </mrow>
+                                </msub>
+                              <mo> ∥ </mo>
+                            </mrow>
+                          </mrow>
+                        </mfrac>
+                      </math>
+                    </p>
+                    <p>Facial recognition and facial feature extraction is a huge burden for the Raspberry Pi, especially since Python can only use at most one core for one process. With this in mind, we decided to take a multi-process approach to optimize the performance of drowsiness detection. We split the original program into three processes. The <code>img_put()</code> process is used to read the input from the camera and pass each frame to the <code>face_process()</code> process which extracts the facial information and sends the result to the img_get process. The <code>img_get()</code> process displays the result to the output.</p>
+                    <p>In theory, it is also possible to open multiple <code>face_process()</code> processes by using the Poll function to make face processing faster. However, in the actual test, because the performance of Raspberry Pi is really limited and we need to run other programs at the same time, the excessive resource consumption caused by opening multiple face_process processes will make the overall effect degrade.</p>
+                    <p>The test result of our program is shown in the figure below. The image on the left shows the EAR value under normal conditions, and the image on the right shows the EAR value when the eyes are closed. </p>
+
+                  </li>
+                  <br />
+                  <li><strong> Facing away Detection </strong><br />
+                    An extension of the drowsiness detection feature is to consider when the driver is facing away from the camera. When this occurs, dlib can no longer detect a face and facial features cannot be computed. If the numpy array returned is empty, we know that a face is not detected, and we assume the driver is facing away from the road and is therefore distracted. When this occurs, an alarm is sounded. 
+                    
+                  </li>
+                  <br />
+                  <li><strong>Eye Tracking</strong><br />
+                   <p>Where a face can still be detected when a person angles their head away from the camera, eye tracking is also implemented to check whether their eyes are focused on the road. In implementing the drowsiness detection, the recognition and extraction of facial features was already initialized. Since humans cannot move their eyes independently of each other, we only considered the left eye to reduce image processing.  A function was added to return the coordinates of the outer corner (x1), inner corner (x2s. To achieve this, each frame is prepared using the function <code>cv2.bitwise_not</code>  to invert the image and cv2.cvtColor to convert it to grayscale. Then, we use thresholding to segment the image into the foreground and backgroun), bottom (y1), and top (y2) of the left eye. The function is called and the returned values are used to crop each frame of the video. </p>
+                   <p>Next, the iris needs to be delineated from the whites of the eyed (iris and whites of eye) via some threshold value, T. Where the lighting conditions vary, a constant threshold value will not predictably segment the image. Instead, we use adaptive thresholding via <code>cv2.adaptiveThreshold</code>, which automatically finds the optimal threshold value T(x,y) from the mean of the 𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎×𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎 neighborhood of (x,y) - C, according to the documentation<sup><a href="#reference">[1]</a> </sup>. Now we can find the contours of the iris in each frame using cv2.findContours(), which as its name would suggest, extracts the contours from an image. We find the center coordinates of the iris via cv2.moments(), and compare this value to the center of the left eye.</p>
+                   <p> If |x<sub>center of eye</sub>-x<sub>center of iris</sub>| > 8, then the person is looking away. The direction can be distinguished by considering the signs, but this was not necessary for this project. Snapshots are shown below with a circle drawn on the detected irises and with the thresholding applied. Although not perfect, the adaptive thresholding is able to find the iris when looking left and right, enough so that the contours can be found. </p>
+                    <p style="text-align: center"> 
+                        <img style="max-height: 300px;"  src="pics/eye_tracking.png" alt="Eye tracking" /> 
+                      </p>
+                  </li>
+        
+                  <br />
+                  <li><strong>Sterring Wheel Detection</strong><br />
+                    <p>For the sterring Wheel Detection, we first considered using an analog force sensor. After some testing, it was determined that the sensors were not sensitive enough for this application - a voltage difference was detected only when squeezed. </p>
+                    <p>Although this could be resolved via a voltage divider, we decided to try a simpler alternative: capacitive touch sensors. They detect a change in capacitance when someone touches the sensor, therefore only outputting a low or high state. Additionally, they provide flexibility in that they can be attached to conductive surfaces (aluminum tape) via alligator clips. This allowed us to increase the surface area for each sensor and cover a greater area of the steering wheel. Realistically, this would require a steering wheel cover with many sensors since a person may hold the wheel in any position.</p> 
+                    <p>For the purposes of this project, we will only use two sensors for each hand at the recommended 9 and 3 o'clock positions.  If at least one of the surfaces is touched (i.e. high), then it is assumed that the person has at least one hand on the wheel. However, if none of the surfaces are touched (i.e. low), then it is assumed the person has neither hand on the wheel and an alarm is sounded. This is achieved by checking the values of each pin within a polling loop.</p>
+                   
+                  </li>
+                  <br />
+                  <li><strong>Connect Car with OBDII Reader</strong><br />
+                    <p>Another feature we implemented was using real-time car speed data to determine whether to sound alarms. The data collection was achieved through an OBDII scanner, which is a port found in all cars sold in the USA after 1996. It can be used to access live data from the car, including speed. Using this, if the speed was greater than 0 and the driver was distracted, the system would issue an alarm. However, if the car was not moving (parked, stopped in traffic) and the driver was distracted, the system would not issue an alarm. This is to prevent the driver from being alerted when the car is safely stopped. </p>
+                    <p>We encountered several issues when purchasing an OBDII reader. The only car we had access to was an Alfa Romeo Giuliua - an Italian car. However, after reading through some forums, we discovered that since it was sold in the USA, the connection had to be standard. We first ordered an <a href="https://www.amazon.com/dp/B078K54MT5?psc=1&ref=ppx_yo2_dt_b_product_details" target="_blank">OBD2 reader compatible with wifi</a>, but after some time, we were unable to connect. Instead, we ordered an <a href="https://www.amazon.com/BAFX-Products-Wireless-Bluetooth-Diagnostic/dp/B005NLQAHS/ref=asc_df_B005NLQAHS/?tag=hyprod-20&linkCode=df0&hvadid=312174136943&hvpos=&hvnetw=g&hvrand=11010482677288197232&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9005779&hvtargid=pla-405660976208&psc=1&tag=&ref=&adgrpid=63790029762&hvpone=&hvptwo=&hvadid=312174136943&hvpos=&hvnetw=g&hvrand=11010482677288197232&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9005779&hvtargid=pla-405660976208" target="_blank">OBD2 reader compatible with bluetooth</a>as an alternative. We used the same <a href="https://github.com/TymanLS/pi-cardash" target="_blank">OBD install and BLE connection setup </a> as a team from a previous year, which was very straightforward. As a brief summary, we enabled bluetooth connection, scanned and connected to the OBDII, and extracted the speed using a simple script. The Wifi should work, but we would recommend using bluetooth compatible OBDII, as it is well documented and much easier to implement.
+                   </p>
+                  </li>
+                  <br />
+                  <li><strong>Pygame Interface</strong><br />
+                    <p>Using pygame, we created a basic interface to display on the piTFT. We have divided the screen into five areas, the first of which displays the current vehicle speed in real time. The other four areas are divided into four quadrants and we devoted each quadrant to one of the four main features (drowsiness, facing away, eye tracking, and wheel detection).</p>
+                    <p>Each quadrant is initialized as black, and if distracted driving is detected, the appropriate quadrant is filled with red and a statement printed to the screen. At the bottom of each quadrant, there is also a counter, which records the number of instances for each distracted driving event. A small section was left at the top to show/update the speed of the car. Finally, a quit button was implemented to allow the user to cleanly exit the program, using one of the physical piTFT buttons. Snapshots of the interface are shown below.</p>
+
+                  </li>
+                  <br />
+                </ol>
+              </p>
+      </div>
+
+    <hr id='drawings'>
+
+      <div style="text-align:center;">
+              <h2>Drawings</h2>
+              <p style="text-align: center;">
+                <img style="max-height: 300px;"  src="pics/architecture.png" alt="Design" /> 
+              </p>
+      </div>
+
+    <hr id='result'>
+
+      <div style="text-align:center;">
+              <h2>Result and Future Improvements</h2>
+              <p style="text-align: left;padding: 0px 30px;">Overall, these features showed promising results. Our demo worked well, with all major features performing as intended. We only encountered one minor issue - we were unable to get the alarm sound to work properly. </p>
+
+              <p style="text-align: left;padding: 0px 30px;">For the steering wheel detection, it was pointed out during the demo that someone could trick the system and drive with minimum contact of one hand (holding a finger to the sensors). This could be adjusted by requiring at least two sensors be touched. </p>
+                
+              <p style="text-align: left;padding: 0px 30px;">One potential extension of the OBDII would be to consider the direction of the car's travel. If the driver was reverse or parallel parking, this would require the person to look behind them, thus triggering an unnecessary alarm. Either the alarms could be disabled when put into reverse, or there could be a button to momentarily disable the alarms (for 2-3 minutes), while the person parks. </p>
+                
+              <p style="text-align: left;padding: 0px 30px;">The eye tracking worked quite well, although it would need to be tested in a car before being implemented in any real system. For example, someone could be adverting their gaze from the road to check their rearview or side mirrors. The number of seconds before sounding an alarm, as well as the threshold, D, for |x<sub>center of eye</sub>-x<sub>center of iris</sub>| > D would need to be tested and adjusted to work for a real driver. </p>
+                
+              <p style="text-align: left;padding: 0px 30px;">Where all of these detectors (except steering wheel) require a camera, the performance is expected to markedly decrease in the night-time. This presents an issue, since drivers are more likely to be drowsy at night, and despite 60% less traffic on the roads, more than 40% of all fatal car accidents occur at night <sup><a href="#reference">[3]</a></sup>. Since it is considered a distraction for a driver to have cabin lights on in the car, we would have to implement a night vision camera. </p>
+      </div>
+
+    <hr>
+
+    <div class="row" style="text-align:center;">
+          <h2>Work Distribution</h2>
+          <!-- <div style="text-align:center;">
+              <img class="img-rounded" src="pics/group.jpg" alt="Generic placeholder image" style="width:80%;">
+              <h4>Project group picture</h4>
+          </div> -->
+          <div class="col-md-6" style="font-size:16px">
+              <img class="img-rounded" src="pics/a.png" alt="Generic placeholder image" width="240" height="240">
+              <h3>Yu Zhang</h3>
+              <p class="lead">yz2729@cornell.edu</p>
+              <p>Designed the overall software architecture and implemented functions including drowsiness detection, facing away detection, multiprocessing, OBDII, pygame display</p>
+          </div>
+          <div class="col-md-6" style="font-size:16px">
+              <img class="img-rounded" src="pics/b.png" alt="Generic placeholder image" width="240" height="240">
+              <h3>Sirena Depue</h3>
+              <p class="lead">sgd63@cornell.edu</p>
+              <p> Built the hardware system and implemented functions including: eye tracking, sterring wheel detection, OBDII, and pygame display
+          </div>
+      </div>
+
+    <hr>
+      <div style="font-size:18px">
+          <h2>Parts List</h2>
+          <table>
+            <tr>
+              <th>Parts</th>
+              <th>From</th>
+              <th>Cost</th>
+            </tr>
+            <tr>
+              <td>Raspberry Pi</td>
+              <td>Lab</td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td>Raspberry Pi Camera</td>
+              <td>Lab</td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td>12-Key Capacitive Touch Sensor</td>
+              <td>Lab</td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td>Aluminum Tape</td>
+              <td>Lab</td>
+              <td>$0.00</td>
+            </tr>
+            <tr>
+              <td>Bluetooth OBDII Scanner/td>
+              <td>Amazon</td>
+              <td>$20.99</td>
+            </tr>
+          </table>
+          <h3>Total: $20.99</h3>
+      </div>
+      <hr>
+      <div style="font-size:18px">
+          <h2 id='reference'> References</h2>
+          <ol>
+            
+            <li> <a href="https://vision.fe.uni-lj.si/cvww2016/proceedings/papers/05.pdf">Real-Time Eye Blink Detection using Facial Landmarks</a><br> </li>
+            <li> <a href="https://learn.adafruit.com/mpr121-capacitive-touch-sensor-on-raspberry-pi-and-beaglebone-black/electrodes">OpenCV Documents</a><br> </li>
+            <li> <a href="https://learn.adafruit.com/mpr121-capacitive-touch-sensor-on-raspberry-pi-and-beaglebone-black/electrodes">MPR121 Capacitive Touch Sensor Documents</a><br> </li>
+            <li > <a  href="https://seriousaccidents.com/legal-advice/top-causes-of-car-accidents/nighttime-driving/">Night Driving</a><br> </li>
+          </ol>
+          
+          
+          
+      </div>
+
+    <hr>
+
+      <div class="row">
+              <h2>Code Appendix</h2>
+              <pre><code>
+// Hello World.c
+int main(){
+  printf("Hello World.\n");
+}
+              </code></pre>
+      </div>
+
+    </div><!-- /.container -->
+
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+  </body>
+</html>
