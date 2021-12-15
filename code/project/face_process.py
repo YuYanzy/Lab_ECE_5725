@@ -27,10 +27,8 @@ def GPIO27_callback(channel):
     
 distracted_counter = 0
 drowsy_counter = 0
-yawn_counter = 0
 eye_track_counter = 0
 drowsy = False
-yawn = False
 eye_track = False
 distracted = False
 
@@ -84,8 +82,8 @@ def image_get(process_queue):
 
 # Facial processing
 def facial_processing(image_queue, process_queue, sound_queue):
-    global distracted_counter, drowsy_counter, yawn_counter, eye_track_counter
-    global distracted, yawn, drowsy
+    global distracted_counter, drowsy_counter, eye_track_counter
+    global distracted, drowsy
     global CODERUN
 	
     #get face detector and facial landmark predector
@@ -185,9 +183,7 @@ def facial_processing(image_queue, process_queue, sound_queue):
                         if eye_track_counter > 4: 
                             eye_track = True
                             drowsy = False
-                            yawn = False
                             drowsy_counter = 0
-                            yawn_counter = 0
                             print("EYE_OFF_ROAD")
                             f.write("EYE_OFF_ROAD\n")
                             eye_track_counter = 0
@@ -212,9 +208,7 @@ def facial_processing(image_queue, process_queue, sound_queue):
                     print("HEAD_OFF_ROAD")
                     distracted = True
                     drowsy = False
-                    yawn = False
                     drowsy_counter = 0
-                    yawn_counter = 0
                     distracted_counter = 0
                 if distracted:
                     cv2.putText(frame, "PLEASE FACE THE ROAD", (10, 30),
