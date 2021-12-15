@@ -105,7 +105,7 @@
                 <ol style="text-align:justify">
 
                   <li><strong> Drowsiness Detection</strong><br />
-                    <p>The drowsiness detection feature requires the use of a Pi camera. We use OpenCV to detect a face and extract facial features from the camera. Then we apply Dlib's facial landmark detection to detect the eyes and use the the Eye Aspect Ration(EAR) algorithm, which was introduced by Soukupová and Čech’s in their 2017 paper<sup><a>[1]</a></sup>, to determine whether the driver is drowsy.</p>
+                    <p>The drowsiness detection feature requires the use of a Pi camera. We use OpenCV to detect a face and extract facial features from the camera. Then we apply Dlib's facial landmark detection to detect the eyes and use the the Eye Aspect Ration(EAR) algorithm, which was introduced by Soukupová and Čech’s in their 2017 paper<sup><a href="#reference">[1]</a></sup>, to determine whether the driver is drowsy.</p>
                     <p>The EAR value can be calculated using the following fomula. When the eys is fully open, the EAR value should be larger than a pre-defined threshold. And when the eye is closed, the EAR value decreases and tends to zero, which means that it must be less than our pre-defined threshold. </p>
                     <p style="text-align:center">
                       <img style="max-height: 300px;"  src="pics/formula.png" alt="formula" /> 
@@ -113,29 +113,29 @@
                     <p>Facial recognition and facial feature extraction is a huge burden for the Raspberry Pi, especially since Python can only use at most one core for one process. With this in mind, we decided to take a multi-process approach to optimize the performance of drowsiness detection. We split the original program into three processes. The <code>img_put()</code> process is used to read the input from the camera and pass each frame to the <code>face_process()</code> process which extracts the facial information and sends the result to the img_get process. The <code>img_get()</code> process displays the result to the output.</p>
                     <p>In theory, it is also possible to open multiple <code>face_process()</code> processes by using the Poll function to make face processing faster. However, in the actual test, because the performance of Raspberry Pi is really limited and we need to run other programs at the same time, the excessive resource consumption caused by opening multiple face_process processes will make the overall effect degrade.</p>
                     <p>The test result of our program is shown in the figure below. The image on the left shows the EAR value under normal conditions, and the image on the right shows the EAR value when the eyes are closed. </p>
-
+                    <p style="color: red">TODO: ADD photos for Drowsiness Detection</p>
                   </li>
                   <br />
                   <li><strong> Facing away Detection </strong><br />
                     An extension of the drowsiness detection feature is to consider when the driver is facing away from the camera. When this occurs, dlib can no longer detect a face and facial features cannot be computed. If the numpy array returned is empty, we know that a face is not detected, and we assume the driver is facing away from the road and is therefore distracted. When this occurs, an alarm is sounded. 
+                  <p style="color: red">TODO: ADD photos for Facing away Detection</p>
                     
                   </li>
                   <br />
                   <li><strong>Eye Tracking</strong><br />
                    <p>Where a face can still be detected when a person angles their head away from the camera, eye tracking is also implemented to check whether their eyes are focused on the road. In implementing the drowsiness detection, the recognition and extraction of facial features was already initialized. Since humans cannot move their eyes independently of each other, we only considered the left eye to reduce image processing.  A function was added to return the coordinates of the outer corner (x1), inner corner (x2s. To achieve this, each frame is prepared using the function <code>cv2.bitwise_not</code>  to invert the image and cv2.cvtColor to convert it to grayscale. Then, we use thresholding to segment the image into the foreground and backgroun), bottom (y1), and top (y2) of the left eye. The function is called and the returned values are used to crop each frame of the video. </p>
-                   <p>Next, the iris needs to be delineated from the whites of the eyed (iris and whites of eye) via some threshold value, T. Where the lighting conditions vary, a constant threshold value will not predictably segment the image. Instead, we use adaptive thresholding via <code>cv2.adaptiveThreshold</code>, which automatically finds the optimal threshold value T(x,y) from the mean of the 𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎×𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎 neighborhood of (x,y) - C, according to the documentation<sup><a href="#reference">[1]</a> </sup>. Now we can find the contours of the iris in each frame using cv2.findContours(), which as its name would suggest, extracts the contours from an image. We find the center coordinates of the iris via cv2.moments(), and compare this value to the center of the left eye.</p>
+                   <p>Next, the iris needs to be delineated from the whites of the eyed (iris and whites of eye) via some threshold value, T. Where the lighting conditions vary, a constant threshold value will not predictably segment the image. Instead, we use adaptive thresholding via <code>cv2.adaptiveThreshold</code>, which automatically finds the optimal threshold value T(x,y) from the mean of the 𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎×𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎 neighborhood of (x,y) - C, according to the documentation<sup><a href="#reference">[2]</a> </sup>. Now we can find the contours of the iris in each frame using cv2.findContours(), which as its name would suggest, extracts the contours from an image. We find the center coordinates of the iris via cv2.moments(), and compare this value to the center of the left eye.</p>
                    <p> If |x<sub>center of eye</sub>-x<sub>center of iris</sub>| > 8, then the person is looking away. The direction can be distinguished by considering the signs, but this was not necessary for this project. Snapshots are shown below with a circle drawn on the detected irises and with the thresholding applied. Although not perfect, the adaptive thresholding is able to find the iris when looking left and right, enough so that the contours can be found. </p>
                     <p style="text-align: center"> 
                         <img style="max-height: 300px;"  src="pics/eye_tracking.png" alt="Eye tracking" /> 
                       </p>
                   </li>
-        
                   <br />
                   <li><strong>Sterring Wheel Detection</strong><br />
                     <p>For the sterring Wheel Detection, we first considered using an analog force sensor. After some testing, it was determined that the sensors were not sensitive enough for this application - a voltage difference was detected only when squeezed. </p>
                     <p>Although this could be resolved via a voltage divider, we decided to try a simpler alternative: capacitive touch sensors. They detect a change in capacitance when someone touches the sensor, therefore only outputting a low or high state. Additionally, they provide flexibility in that they can be attached to conductive surfaces (aluminum tape) via alligator clips. This allowed us to increase the surface area for each sensor and cover a greater area of the steering wheel. Realistically, this would require a steering wheel cover with many sensors since a person may hold the wheel in any position.</p> 
                     <p>For the purposes of this project, we will only use two sensors for each hand at the recommended 9 and 3 o'clock positions.  If at least one of the surfaces is touched (i.e. high), then it is assumed that the person has at least one hand on the wheel. However, if none of the surfaces are touched (i.e. low), then it is assumed the person has neither hand on the wheel and an alarm is sounded. This is achieved by checking the values of each pin within a polling loop.</p>
-                   
+                    <p style="color: red">TODO: ADD Photos for the Sterring Wheel Detection </p>
                   </li>
                   <br />
                   <li><strong>Connect Car with OBDII Reader</strong><br />
@@ -147,6 +147,7 @@
                   <li><strong>Pygame Interface</strong><br />
                     <p>Using pygame, we created a basic interface to display on the piTFT. We have divided the screen into five areas, the first of which displays the current vehicle speed in real time. The other four areas are divided into four quadrants and we devoted each quadrant to one of the four main features (drowsiness, facing away, eye tracking, and wheel detection).</p>
                     <p>Each quadrant is initialized as black, and if distracted driving is detected, the appropriate quadrant is filled with red and a statement printed to the screen. At the bottom of each quadrant, there is also a counter, which records the number of instances for each distracted driving event. A small section was left at the top to show/update the speed of the car. Finally, a quit button was implemented to allow the user to cleanly exit the program, using one of the physical piTFT buttons. Snapshots of the interface are shown below.</p>
+                    <p style="color: red">TODO: ADD Snapshots for the interface </p>
 
                   </li>
                   <br />
@@ -160,6 +161,7 @@
               <h2>Drawings</h2>
               <p style="text-align: center;">
                 <img style="max-height: 300px;"  src="pics/architecture.png" alt="Design" /> 
+                <p style="color: red">TODO: ADD an photo of hardware system </p>
               </p>
       </div>
 
@@ -175,7 +177,7 @@
                 
               <p style="text-align: left;padding: 0px 30px;">The eye tracking worked quite well, although it would need to be tested in a car before being implemented in any real system. For example, someone could be adverting their gaze from the road to check their rearview or side mirrors. The number of seconds before sounding an alarm, as well as the threshold, D, for |x<sub>center of eye</sub>-x<sub>center of iris</sub>| > D would need to be tested and adjusted to work for a real driver. </p>
                 
-              <p style="text-align: left;padding: 0px 30px;">Where all of these detectors (except steering wheel) require a camera, the performance is expected to markedly decrease in the night-time. This presents an issue, since drivers are more likely to be drowsy at night, and despite 60% less traffic on the roads, more than 40% of all fatal car accidents occur at night <sup><a href="#reference">[3]</a></sup>. Since it is considered a distraction for a driver to have cabin lights on in the car, we would have to implement a night vision camera. </p>
+              <p style="text-align: left;padding: 0px 30px;">Where all of these detectors (except steering wheel) require a camera, the performance is expected to markedly decrease in the night-time. This presents an issue, since drivers are more likely to be drowsy at night, and despite 60% less traffic on the roads, more than 40% of all fatal car accidents occur at night <sup><a href="#reference">[4]</a></sup>. Since it is considered a distraction for a driver to have cabin lights on in the car, we would have to implement a night vision camera. </p>
       </div>
 
     <hr>
@@ -202,7 +204,7 @@
 
     <hr>
       <div style="font-size:18px">
-          <h2>Parts List</h2>
+          <h2 >Parts List</h2>
           <table>
             <tr>
               <th>Parts</th>
@@ -230,11 +232,12 @@
               <td>$0.00</td>
             </tr>
             <tr>
-              <td>Bluetooth OBDII Scanner/td>
+              <td>Bluetooth OBDII Scanner</td>
               <td>Amazon</td>
               <td>$20.99</td>
             </tr>
           </table>
+    
           <h3>Total: $20.99</h3>
       </div>
       <hr>

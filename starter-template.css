@@ -1,5 +1,6 @@
 body {
   padding-top: 50px;
+  font-size: 18px;
 }
 
 .starter-template {
@@ -10,11 +11,21 @@ text-align: center;
 hr { margin: 20px 0 20px 0; }
 
 .center-block {  
-  width:640px;
+width:640px;
 display: block;  
 margin-right: auto;  
 margin-left: auto;  
 }
+
+
+
+table,
+th,
+td {
+  padding: 5px;
+  border: 1px solid black;
+}
+
 
 code[class*="language-"] {
   padding: 0.25rem 0.5rem;
