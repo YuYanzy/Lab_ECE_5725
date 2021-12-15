@@ -38,14 +38,6 @@ distracted = False
 cap =cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc('M','J','P','G'))
 
-# def sound_alarm(sound_queue):
-#     global CODERUN
-#     while CODERUN:
-#         alarm_message = sound_queue.get(block=True)
-#         # cmd = f'espeak -ven+f2 -k5 -s150 --stdout  "{alarm_message}" | aplay '
-#         # os.system(cmd)
-#         # time.sleep(3)
-
 #draw a bounding box over face
 def get_max_area_rect(rects):
     # checks to see if a face was not dectected (0)
@@ -108,15 +100,11 @@ def facial_processing(image_queue, process_queue, sound_queue):
     global distracted_counter, drowsy_counter, yawn_counter, eye_track_counter
     global distracted, yawn, drowsy
     global CODERUN
-    # distracton_initialized   = False
-    # eye_initialized          = False
-    # mouth_initialized        = False
 	
     #get face detector and facial landmark predector
     detector    = dlib.get_frontal_face_detector()
     predictor   = dlib.shape_predictor(shape_predictor_path)
 
-    
     #d grab the indexes of the facial landmarks for the left an right eye, respectively
     ls,le = face.FACIAL_LANDMARKS_IDXS["left_eye"]
     rs,re = face.FACIAL_LANDMARKS_IDXS["right_eye"]
@@ -155,20 +143,12 @@ def facial_processing(image_queue, process_queue, sound_queue):
                 rightEAR = get_eye_aspect_ratio(rightEye)
             # average the eye aspect ratio together for both eyes
                 eye_aspect_ratio = (leftEAR + rightEAR) / 2.0
-            # #gets the MAR for mouth
-            #     inner_lips=shape[60:68]
-            #     mar=get_mouth_aspect_ratio(inner_lips)
             # compute the convex hull for the left and right eye, then
             # visualize each of the eyes, draw bounding boxes around eyes
                 leftEyeHull = cv2.convexHull(leftEye)
                 rightEyeHull = cv2.convexHull(rightEye)
                 cv2.drawContours(frame, [leftEyeHull], -1, (255, 255, 255), 1)
                 cv2.drawContours(frame, [rightEyeHull], -1, (255, 255, 255), 1)
-                # lipHull = cv2.convexHull(inner_lips)
-                # cv2.drawContours(frame, [lipHull], -1, (255, 255, 255), 1)
-            #display EAR on screens
-                # cv2.putText(frame, "EAR: {:.2f} MAR{:.2f}".format(eye_aspect_ratio,mar), (10, frame.shape[0]-10),\
-                #         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 cv2.putText(frame, "EAR: {:.2f} ".format(eye_aspect_ratio), (10, frame.shape[0]-10),\
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
             #checking if eyes are drooping/almost closed
@@ -179,8 +159,6 @@ def facial_processing(image_queue, process_queue, sound_queue):
                         print("DROWSY")
                         f.write("DROWSY\n")
                         drowsy_counter = 0
-                        # alarm_message = "Drowsing"
-                        # sound_queue.put(alarm_message)
                     if drowsy:
                         cv2.putText(frame, "YOU ARE DROWSY!", (10, 30),
                                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -191,24 +169,6 @@ def facial_processing(image_queue, process_queue, sound_queue):
                         drowsy_counter = 0
                         print("NOT_DROWSY")
                         f.write("NOT_DROWSY\n")
-                                    
-            #checks if user is yawning
-                # if mar > MOUTH_DROWSINESS_THRESHOLD:
-                #     yawn_counter += 1
-                #     if yawn_counter >= 5:
-                #         yawn = True
-                #         print("YAWN")
-                #         f.write("YAWN\n")
-                #         yawn_counter = 0
-                #     if yawn:
-                #         cv2.putText(frame, "YOU ARE YAWNING!", (10, 70),
-                #                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                # else:
-                #     if yawn:
-                #         yawn = False
-                #         print("NOT_YAWN")
-                #         f.write("NOT_YAWN\n")
-                #         yawn_counter = 0
                         
                 lerect = eye_rect(leftEye)
                 #calculate x mid distance of left eye
@@ -237,8 +197,6 @@ def facial_processing(image_queue, process_queue, sound_queue):
                             yawn_counter = 0
                             print("EYE_OFF_ROAD")
                             f.write("EYE_OFF_ROAD\n")
-                            # alarm_message = "Looking Away from the Road"
-                            # sound_queue.put(alarm_message)   
                             eye_track_counter = 0
                         if eye_track:
                             cv2.putText(frame, "KEEP EYES ON THE ROAD!", (10, 70),
@@ -265,8 +223,6 @@ def facial_processing(image_queue, process_queue, sound_queue):
                     drowsy_counter = 0
                     yawn_counter = 0
                     distracted_counter = 0
-                    # alarm_message = "Distracting"
-                    # sound_queue.put(alarm_message)
                 if distracted:
                     cv2.putText(frame, "PLEASE FACE THE ROAD", (10, 30),
                                     cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -277,10 +233,8 @@ def facial_processing(image_queue, process_queue, sound_queue):
     except KeyboardInterrupt: 
         try:
             print("Exit Face Process ")
-            # cap.release()
             sys.exit(0)
         except SystemExit:
-            # cap.release()
             os._exit(0)
 	
  
@@ -297,16 +251,12 @@ if __name__=='__main__':
         process2.daemon = True
         process3 = Process(target=facial_processing, args=(image_queue, process_queue, sound_queue,))
         process3.daemon = True
-        # process4 = Process(target=sound_alarm, args=(sound_queue, ))
-        # process4.daemon = True
         process1.start()
         process2.start()
         process3.start()
-        # process4.start()
         process1.join()
         process2.join()
         process3.join()
-        # process4.join()
         print("End All Process!")
     except KeyboardInterrupt:
         try:
