@@ -108,76 +108,7 @@
                     <p>The drowsiness detection feature requires the use of a Pi camera. We use OpenCV to detect a face and extract facial features from the camera. Then we apply Dlib's facial landmark detection to detect the eyes and use the the Eye Aspect Ration(EAR) algorithm, which was introduced by Soukupová and Čech’s in their 2017 paper<sup><a>[1]</a></sup>, to determine whether the driver is drowsy.</p>
                     <p>The EAR value can be calculated using the following fomula. When the eys is fully open, the EAR value should be larger than a pre-defined threshold. And when the eye is closed, the EAR value decreases and tends to zero, which means that it must be less than our pre-defined threshold. </p>
                     <p style="text-align:center">
-                      <math xmlns='http://www.w3.org/1998/Math/MathML'>
-                        <mi> E </mi>
-                        <mi> A </mi>
-                        <mi> R </mi>
-                        <mo> = </mo>
-                        <mfrac>
-                          <mrow>
-                            <mrow>
-                              <mo> ∥ </mo>
-                                <msub>
-                                  <mrow>
-                                    <mi> p </mi>
-                                  </mrow>
-                                  <mrow>
-                                    <mn> 2 </mn>
-                                  </mrow>
-                                </msub>
-                                <mo> - </mo>
-                                <msub>
-                                  <mrow>
-                                    <mi> p </mi>
-                                  </mrow>
-                                  <mrow>
-                                    <mn> 6 </mn>
-                                  </mrow>
-                                </msub>
-                              <mo> ∥ </mo>
-                            </mrow>
-                            <mo> + </mo>
-                            <mrow>
-                              <mo> ∥ </mo>
-                                <mi> B </mi>
-                                <mo> - </mo>
-                                <msub>
-                                  <mrow>
-                                    <mi> p </mi>
-                                  </mrow>
-                                  <mrow>
-                                    <mn> 5 </mn>
-                                  </mrow>
-                                </msub>
-                              <mo> ∥ </mo>
-                            </mrow>
-                          </mrow>
-                          <mrow>
-                            <mn> 2 </mn>
-                            <mrow>
-                              <mo> ∥ </mo>
-                                <msub>
-                                  <mrow>
-                                    <mi> P </mi>
-                                  </mrow>
-                                  <mrow>
-                                    <mn> 1 </mn>
-                                  </mrow>
-                                </msub>
-                                <mo> - </mo>
-                                <msub>
-                                  <mrow>
-                                    <mi> p </mi>
-                                  </mrow>
-                                  <mrow>
-                                    <mn> 4 </mn>
-                                  </mrow>
-                                </msub>
-                              <mo> ∥ </mo>
-                            </mrow>
-                          </mrow>
-                        </mfrac>
-                      </math>
+                      <img style="max-height: 300px;"  src="pics/formula.png" alt="formula" /> 
                     </p>
                     <p>Facial recognition and facial feature extraction is a huge burden for the Raspberry Pi, especially since Python can only use at most one core for one process. With this in mind, we decided to take a multi-process approach to optimize the performance of drowsiness detection. We split the original program into three processes. The <code>img_put()</code> process is used to read the input from the camera and pass each frame to the <code>face_process()</code> process which extracts the facial information and sends the result to the img_get process. The <code>img_get()</code> process displays the result to the output.</p>
                     <p>In theory, it is also possible to open multiple <code>face_process()</code> processes by using the Poll function to make face processing faster. However, in the actual test, because the performance of Raspberry Pi is really limited and we need to run other programs at the same time, the excessive resource consumption caused by opening multiple face_process processes will make the overall effect degrade.</p>
@@ -316,21 +247,14 @@
             <li> <a href="https://learn.adafruit.com/mpr121-capacitive-touch-sensor-on-raspberry-pi-and-beaglebone-black/electrodes">MPR121 Capacitive Touch Sensor Documents</a><br> </li>
             <li > <a  href="https://seriousaccidents.com/legal-advice/top-causes-of-car-accidents/nighttime-driving/">Night Driving</a><br> </li>
           </ol>
-          
-          
-          
       </div>
 
     <hr>
 
       <div class="row">
               <h2>Code Appendix</h2>
-              <pre><code>
-// Hello World.c
-int main(){
-  printf("Hello World.\n");
-}
-              </code></pre>
+              <p>The complete code is hosted in <a href="https://github.com/YuYanzy/Lab_ECE_5725/tree/main/code/project" target="_blank">Github</a>, here we just show the code for <code>face_process.py</code>. </p>
+              <script src="https://emgithub.com/embed.js?target=https%3A%2F%2Fgithub.com%2FYuYanzy%2FLab_ECE_5725%2Fblob%2Fmain%2Fcode%2Fproject%2Fface_process.py&style=darcula&showBorder=on&showLineNumbers=on&showFileMeta=on&showCopy=on&fetchFromJsDelivr=on"></script>
       </div>
 
     </div><!-- /.container -->
