@@ -80,6 +80,12 @@
               <h2>Introduction</h2>
               <p style="text-align: left;padding: 0px 30px;">The purpose of this project is to create a self-contained system that monitors and alerts the driver when distracted. There are several categories within ‘distracted driving’ that we considered. Using OpenCV and DLib to detect a face and extract facial features from picamera footage, we can detect whether the driver is drowsy, is facing away from the road, or is looking away from the road. In addition, a capacitive touch sensor is used to detect whether the driver’s hands are on the steering wheel. An OBDII scanner is used to log the speed of the vehicle in real-time. To avoid unnecessary alarms, the alarms are paused when the car is safely stopped.</p>
               <p style="text-align: left;padding: 0px 30px;">Additionally, there are time thresholds that must be exceeded before an alarm goes off. The triggering of the alarms is also reflected in a basic piTFT display. The following report outlines the implementation and testing of each feature and suggested future improvements. </p>
+              <p style="text-align: center;">
+                <figure>
+                <img style="max-height: 300px;"  src="pics/architecture.png" alt="Design" /> 
+                <figcaption>Function Architecture</figcaption>
+                </figure>
+              </p>
       </div>
 
     <hr id='obj'>
@@ -174,7 +180,7 @@
                   </li>
                   <br />
                   <li><strong>Pygame Interface</strong><br />
-                    <p>Using pygame, we created a basic interface to display on the piTFT. We have divided the screen into five areas, the first of which displays the current vehicle speed in real-time. The other four areas are divided into four quadrants and we devoted each quadrant to one of the four main features (drowsiness, facing away, eye tracking, and wheel detection).</p>
+                    <p>Using pygame, we created a basic interface to display on the piTFT. We split the screen into five sections. One of these included a small section at the top of the screen to show/update the speed of the car. The remainder was separated into four quadrants via the <code>pygame.draw.line()</code> function and each quadrant was devoted to one of the four main features (drowsiness, facing away, eye tracking, and wheel detection). </p>
                     <p>Each quadrant is initialized as black, and if distracted driving is detected, the appropriate quadrant is filled with red and a statement printed to the screen. At the bottom of each quadrant, there is also a counter, which records the number of instances of each distracted driving event. A small section was left at the top to show/update the speed of the car. Finally, a quit button was implemented to allow the user to cleanly exit the program, using one of the physical piTFT buttons. </p>
                     <div style="text-align:center">
                       <figure>
@@ -194,12 +200,9 @@
               <h2>Drawings</h2>
               <p style="text-align: center;">
                 <figure>
-                <img style="max-height: 300px;"  src="pics/architecture.png" alt="Design" /> 
-                <figcaption>Function Architecture</figcaption>
-                </figure>
-                <figure>
                   <img style="max-height: 300px;"  src="pics/hardware.png" alt="hardware" /> 
                   <figcaption>Final Hardware System</figcaption>
+                </figure>
               </p>
       </div>
 
@@ -251,10 +254,10 @@
               <p>Designed the overall software architecture and implemented functions including drowsiness detection, facing away detection, multiprocessing, OBDII, pygame display</p>
           </div>
           <div class="col-md-6" style="font-size:16px">
-            <img  src="pics/sirena.png" alt="Yu Zhang" style="max-height: 300px;">
+            <img  src="pics/sirena.png" alt="sirena" style="max-height: 300px;">
               <h3>Sirena Depue</h3>
               <p class="lead">sgd63@cornell.edu</p>
-              <p> Built the hardware system and implemented functions including: eye tracking, sterring wheel detection, OBDII, and pygame display
+              <p> Built the hardware system and implemented functions including: eye tracking, steering wheel detection, OBDII, and pygame display
           </div>
       </div>
 
@@ -293,14 +296,14 @@
               <td>$5.98</td>
             </tr>
             <tr>
-              <td>Bluetooth OBDII Scanner</td>
+              <td><a href="https://www.amazon.com/gp/product/B005NLQAHS" target="_blank">Bluetooth OBDII Scanner</a></td>
               <td>Amazon</td>
-              <td>$26.97</td>
+              <td>$20.99</td>
             </tr>
             
           </table>
     
-          <h3>Total: $20.99</h3>
+          <h3>Total: $26.97</h3>
       </div>
       <hr>
       <div style="font-size:18px">
