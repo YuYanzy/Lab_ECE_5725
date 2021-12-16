@@ -1,3 +1,8 @@
+#######################
+# Yu Zhang yz2729     #
+# Sirena Depue sgd63  #
+# 12/15/2021          #
+#######################
 import os
 import cv2
 import dlib
