@@ -54,6 +54,8 @@
             <li><a href="#design">Design</a></li>
             <li><a href="#drawings">Drawings & Testing</a></li>
             <li><a href="#result">Result</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+            <li><a href="#future">Future Improvements</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -121,7 +123,7 @@
                   </li>
                   <br />
                   <li><strong> Facing away Detection </strong><br />
-                    An extension of the drowsiness detection feature is to consider when the driver is facing away from the camera. When this occurs, dlib can no longer detect a face and facial features cannot be computed. If the numpy array returned is empty, we know that a face is not detected, and we assume the driver is facing away from the road and is therefore distracted. When this occurs, an alarm is sounded. 
+                    An extension of this feature is to consider when the driver is facing away from the camera. When this occurs, dlib can no longer detect a face and facial features cannot be computed. If the numpy array returned is empty, we know that a face is not detected, and we assume the driver is facing away from the road and is therefore distracted. When this occurs, an alarm is sounded. One additional feature is in the case of the driver facing away while a drowsiness or looking away alarm is still triggered. If this occurs, the other alarms are disabled because it can no longer detect your face and determine if the driver is indeed drowsy or looking away. 
                     <br/>
                     <br/>
                     <div style="text-align:center">
@@ -133,9 +135,9 @@
                   </li>
                   <br />
                   <li><strong>Eye Tracking</strong><br />
-                   <p>Where a face can still be detected when a person angles their head away from the camera, eye tracking is also implemented to check whether their eyes are focused on the road. In implementing the drowsiness detection, the recognition and extraction of facial features were already initialized. Since humans cannot move their eyes independently of each other, we only considered the left eye to reduce image processing.  A function was added to return the coordinates of the outer corner (x1), inner corner (x2s. To achieve this, each frame is prepared using the function <code>cv2.bitwise_not</code>  to invert the image and cv2.cvtColor to convert it to grayscale. Then, we use thresholding to segment the image into the foreground and background), bottom (y1), and top (y2) of the left eye. The function is called and the returned values are used to crop each frame of the video. </p>
-                   <p>Next, the iris needs to be delineated from the whites of the eyed (iris and whites of the eye) via some threshold value, T. Where the lighting conditions vary, a constant threshold value will not predictably segment the image. Instead, we use adaptive thresholding via <code>cv2.adaptiveThreshold</code>, which automatically finds the optimal threshold value T(x,y) from the mean of the 𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎×𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎 neighborhood of (x,y) - C, according to the documentation<sup><a href="#reference">[2]</a> </sup>. Now we can find the contours of the iris in each frame using cv2.findContours(), which as its name would suggest, extracts the contours from an image. We find the center coordinates of the iris via cv2.moments(), and compare this value to the center of the left eye.</p>
-                   <p> If |x<sub>center of eye</sub>-x<sub>center of iris</sub>| > 8, then the person is looking away. The direction can be distinguished by considering the signs, but this was not necessary for this project. Snapshots are shown below with a circle drawn on the detected iris and with the thresholding applied. Although not perfect, the adaptive thresholding is able to find the iris when looking left and right, enough so that the contours can be found. </p>
+                   <p>Where a face can still be detected when a person angles their head away from the camera, eye tracking is also implemented to check whether their eyes are focused on the road. In implementing the drowsiness detection, the recognition and extraction of facial features was already initialized. A function was added to return the coordinates of the outer corner (x1), inner corner (x2), bottom (y1), and top (y2) of the left eye. Since humans cannot move their eyes independently of each other, we only considered the left eye to reduce image processing. The function is called and the returned values are used to crop each frame of the video. This was initially not working, as we were switching the x1 and x2 values for cropping. It was not until showing the cropped frame via <code>cv2.imshow</code>, that this was resolved. Following this issue, the rest of the code worked well. </p>
+                   <p>Next, the pupil needs to be delineated from the whites of the eyes. To achieve this, each frame is prepared using the function <code>cv2.bitwise_not</code>  to invert the image and <code>cv2.cvtColor</code> to convert it to grayscale. Then, we use thresholding to segment the image into the foreground and background (pupil and whites of eye) via some threshold value, T. Where the lighting conditions vary, a constant threshold value will not predictably segment the image. Instead, we use adaptive thresholding via <code>cv2.adaptiveThreshold</code>, which automatically finds the optimal threshold value T(x,y) from the mean of the 𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎×𝚋𝚕𝚘𝚌𝚔𝚂𝚒𝚣𝚎 neighborhood of (x,y) - C, according to the documentation<sup><a href="#reference">[2]</a></sup>. Now we can find the contours of the pupil in each frame using <code>cv2.findContours()</code>, which as its name would suggest, extracts the contours from an image. We find the center coordinates of the pupil via <code>cv2.moments()</code>, and compare this value to the center of the left eye. If |x<sub>center of eye</sub> - x<sub>center of pupil</sub>| > 8, then the person is looking away. The direction can be distinguished by considering the signs, but this was not necessary for this project. Snapshots are shown below with a circle drawn on the detected pupil and with the thresholding applied. Although not perfect, the adaptive thresholding is able to find the pupil when looking left and right, enough so that the contours can be found. </p>
+                  <p>A <a href="https://towardsdatascience.com/real-time-eye-tracking-using-opencv-and-dlib-b504ca724ac6" target="_blank"> website</a>  was loosely referenced to understand the basic steps used in eye tracking; namely thresholding and finding the contours. Beyond these necessary steps, the implementation was different; we were able to use our initial drowsiness code to “prepare” each frame differently (cropping rather than creating a mask), we chose to use adaptive thresholding for better, real-time results, and we used a different equation/metric for determining whether the person was looking away. </p>
                     
                       <div style="text-align:center">
                         <figure>
@@ -146,9 +148,9 @@
                   </li>
                   <br />
                   <li><strong>Steering Wheel Detection</strong><br />
-                    <p>For the steering wheel detection feature, we first considered using an analog force sensor. After some testing, it was determined that the sensors were not sensitive enough for this application - a voltage difference was detected only when squeezed. </p>
-                    <p>Although this could be resolved via a voltage divider, we decided to try a simpler alternative: capacitive touch sensors. They detect a change in capacitance when someone touches the sensor, therefore only outputting a low or high state. Additionally, they provide flexibility in that they can be attached to conductive surfaces (aluminum tape) via alligator clips. This allowed us to increase the surface area for each sensor and cover a greater area of the steering wheel. Realistically, this would require a steering wheel cover with many sensors since a person may hold the wheel in any position.</p> 
-                    <p>For the purposes of this project, we will only use two sensors for each hand at the recommended 9 and 3 o'clock positions.  If at least one of the surfaces is touched (i.e. high), then it is assumed that the person has at least one hand on the wheel. However, if none of the surfaces are touched (i.e. low), then it is assumed the person has neither hand on the wheel and an alarm is sounded. This is achieved by checking the values of each pin within a polling loop.</p>
+                    <p>A feature to detect whether the driver has their hands on the wheel is also implemented. For this, we first considered using an analog force sensor. After some testing, it was determined that the sensors were not sensitive enough for this application - a voltage difference was detected only when squeezed. Although this could be resolved via a voltage divider, we decided to try a simpler alternative: capacitive touch sensors. They detect a change in capacitance when someone touches the sensor, therefore only outputting a low or high state. Additionally, they provide flexibility in that they can be attached to conductive surfaces (aluminum tape) via alligator clips. This allowed us to increase the surface area for each sensor and cover a greater area of the steering wheel. Realistically, this would require a steering wheel cover with many sensors since a person may hold the wheel in any position.  </p>
+                    <p>For the purposes of this project, we will only use two sensors for each hand at the recommended 9 and 3 o'clock positions.  If at least one of the surfaces is touched (i.e. high), then it is assumed that the person has at least one hand on the wheel. However, if none of the surfaces are touched (i.e. low), then it is assumed the person has neither hand on the wheel and an alarm is sounded. This is achieved by checking the values of each pin within a polling loop and triggering an alarm when all values are low. 
+                    </p>
                     <div style="text-align:center">
                       <figure>
                         <img style="max-height: 300px;"  src="pics/steering_wheel.png" alt="Steering Wheel" />  
@@ -165,14 +167,13 @@
                   <br />
                   <li><strong>Pygame Interface</strong><br />
                     <p>Using pygame, we created a basic interface to display on the piTFT. We have divided the screen into five areas, the first of which displays the current vehicle speed in real-time. The other four areas are divided into four quadrants and we devoted each quadrant to one of the four main features (drowsiness, facing away, eye tracking, and wheel detection).</p>
-                    <p>Each quadrant is initialized as black, and if distracted driving is detected, the appropriate quadrant is filled with red and a statement printed to the screen. At the bottom of each quadrant, there is also a counter, which records the number of instances of each distracted driving event. A small section was left at the top to show/update the speed of the car. Finally, a quit button was implemented to allow the user to cleanly exit the program, using one of the physical piTFT buttons. Our interface is shown in the picture below.</p>
+                    <p>Each quadrant is initialized as black, and if distracted driving is detected, the appropriate quadrant is filled with red and a statement printed to the screen. At the bottom of each quadrant, there is also a counter, which records the number of instances of each distracted driving event. A small section was left at the top to show/update the speed of the car. Finally, a quit button was implemented to allow the user to cleanly exit the program, using one of the physical piTFT buttons. </p>
                     <div style="text-align:center">
                       <figure>
                         <img style="max-height: 300px;"  src="pics/interface.jpg" alt="Interface" /> 
                         <figcaption>Pygame Interface</figcaption>
                       </figure>      
                     </div>
-
                   </li>
                   <br />
                 </ol>
@@ -197,16 +198,34 @@
     <hr id='result'>
 
       <div style="text-align:center;">
-              <h2>Result and Future Improvements</h2>
-              <p style="text-align: left;padding: 0px 30px;">Overall, these features showed promising results. Our demo worked well, with all major features performing as intended. We only encountered one minor issue - we were unable to get the alarm sound to work properly. </p>
+              <h2>Result</h2>
+              <p style="text-align: left;padding: 0px 30px;">Our demo worked well, with all major features performing as intended. The multiprocessing reduced the load on the system, allowing it to run with no noticeable impact on performance. The drowsiness, facing away, and steering wheel detection all worked seamlessly. The eye tracking worked quite well, although it would need to be tested in a car before being implemented in any real system. For example, someone could be adverting their gaze from the road to check their rearview or side mirrors. The number of seconds before sounding an alarm, as well as the threshold, D, for |x<sub>center of eye</sub> - x<sub>center of pupil</sub>| > D would need to be tested and tuned to work for a real driver. 
+              </p>
 
-              <p style="text-align: left;padding: 0px 30px;">For the steering wheel detection, it was pointed out during the demo that someone could trick the system and drive with minimum contact of one hand (holding a finger to the sensors). This could be adjusted by requiring at least two sensors be touched. </p>
+              <p style="text-align: left;padding: 0px 30px;">For the demonstration, we used a speed log obtained earlier from the OBDII scanner. The speed values were read as if in real-time. This worked well, although in retrospect, we should have obtained a log that did not include as many starts and stops (we recorded it in a parking lot). If a potential distraction was detected, but the speed went to zero before the alarm threshold was met, the counter was reset. This made it important to consult the speed when showing the features during the demonstration. Instead, we should have obtained two logs for simplicity: one with the car stopped and one with the car moving. Finally, when the alarms were triggered, the piTFT screen would update appropriately, but the sound from the speakers did not work. Despite these minor issues, we were able to meet our initial goals with these features showing promising results.
+              </p>
+      </div>
+    
+      <hr id='conclusion'>
+
+      <div style="text-align:center;">
+              <h2>Conclusion</h2>
+              <p style="text-align: left;padding: 0px 30px;">Overall, we were pleased with our demonstration as our system worked quite well. The drowsiness, facing away, looking away, and steering wheel detection worked as expected. The display on the piTFT was simple and effectively showed the triggering of alarms, visually alerting the driver. Some issues we encountered included the sound alarm not working and the eye tracking being a little finicky. The thresholds for eye tracking needed to be tuned more to resolve this issue. Additionally, when preparing for demonstration, we should have obtained better speed logs. 
+              </p>
+      </div>
+
+      <hr id='future'>
+
+      <div style="text-align:center;">
+              <h2>Future Improvements</h2>
+              <p style="text-align: left;padding: 0px 30px;">In designing the alarms, the last word written to the file is extracted. Where there is some latency when retrieving the last value, this could become an issue if two distracted events are detected simultaneously. Using a queue is a possible alternative, where the alert at the front of the queue is popped and the appropriate alarm triggered. Every time a new alert comes in, it would be appended to the end of the queue.   </p>
                 
-              <p style="text-align: left;padding: 0px 30px;">One potential extension of the OBDII would be to consider the direction of the car's travel. If the driver was reverse or parallel parking, this would require the person to look behind them, thus triggering an unnecessary alarm. Either the alarms could be disabled when put into reverse, or there could be a button to momentarily disable the alarms (for 2-3 minutes), while the person parks. </p>
+              <p style="text-align: left;padding: 0px 30px;">For the steering wheel detection, it was pointed out during the demo that someone could trick the system and drive with minimal contact of one hand (holding one finger to a sensor). This could be adjusted by requiring at least two sensors be touched. </p>
                 
-              <p style="text-align: left;padding: 0px 30px;">The eye tracking worked quite well, although it would need to be tested in a car before being implemented in any real system. For example, someone could be adverting their gaze from the road to check their rearview or side mirrors. The number of seconds before sounding an alarm, as well as the threshold, D, for |x<sub>center of eye</sub>-x<sub>center of iris</sub>| > D would need to be tested and adjusted to work for a real driver. </p>
+              <p style="text-align: left;padding: 0px 30px;">One potential extension of the OBDII would be to consider the direction of the car's travel. If the driver was reverse or parallel parking, this would require the person to look behind them, thus triggering an unnecessary alarm. Either we could use the OBDII to determine when the car is in reverse and disable the alarms, or there could be a physical button for the driver to momentarily disable the alarms (for 2-3 minutes), while the person parks. 
+              </p>
                 
-              <p style="text-align: left;padding: 0px 30px;">Where all of these detectors (except steering wheel) require a camera, the performance is expected to markedly decrease in the night-time. This presents an issue, since drivers are more likely to be drowsy at night, and despite 60% less traffic on the roads, more than 40% of all fatal car accidents occur at night <sup><a href="#reference">[4]</a></sup>. Since it is considered a distraction for a driver to have cabin lights on in the car, we would have to implement a night vision camera. </p>
+              <p style="text-align: left;padding: 0px 30px;">Where all of these detectors (except steering wheel) require a camera, the performance is expected to markedly decrease in the night-time. This presents an issue, since drivers are more likely to be drowsy at night, and despite 60% less traffic on the roads, more than 40% of all fatal car accidents occur at night <sup><a href="#reference"> [4] </a></sup>. Since it is considered a distraction for a driver to have cabin lights on in the car, we would have to implement a night vision camera. </p>
       </div>
 
     <hr>
@@ -274,10 +293,16 @@
           <h2 id='reference'> References</h2>
           <ol>
             
-            <li> <a href="https://vision.fe.uni-lj.si/cvww2016/proceedings/papers/05.pdf">Real-Time Eye Blink Detection using Facial Landmarks</a><br> </li>
-            <li> <a href="https://learn.adafruit.com/mpr121-capacitive-touch-sensor-on-raspberry-pi-and-beaglebone-black/electrodes">OpenCV Documents</a><br> </li>
-            <li> <a href="https://learn.adafruit.com/mpr121-capacitive-touch-sensor-on-raspberry-pi-and-beaglebone-black/electrodes">MPR121 Capacitive Touch Sensor Documents</a><br> </li>
-            <li > <a  href="https://seriousaccidents.com/legal-advice/top-causes-of-car-accidents/nighttime-driving/">Night Driving</a><br> </li>
+            <li> <a href="https://vision.fe.uni-lj.si/cvww2016/proceedings/papers/05.pdf" target="_blank">Real-Time Eye Blink Detection using Facial Landmarks</a><br> </li>
+            <li > <a  href="https://towardsdatascience.com/real-time-eye-tracking-using-opencv-and-dlib-b504ca724ac6" target="_blank">Real-Time Eye Tracking Using Opencv and Dlib</a><br> </li>
+            <li> <a href="https://learn.adafruit.com/mpr121-capacitive-touch-sensor-on-raspberry-pi-and-beaglebone-black/electrodes" target="_blank">MPR121 Capacitive Touch Sensor Documents</a><br> </li>
+            <li > <a  href="https://seriousaccidents.com/legal-advice/top-causes-of-car-accidents/nighttime-driving/" target="_blank">Night Driving</a><br> </li>
+            <li > <a  href="https://www.pyimagesearch.com/2017/10/09/optimizing-opencv-on-the-raspberry-pi/" target="_blank">Optimizing Opencv on the Raspberry Pi</a><br> </li>
+            <li > <a  href="https://courses.ece.cornell.edu/ece5990/ECE5725_Spring2021_Projects/May_19/Distracted%20Driving%20Monitor/Monday_bas335_sma293/index.html" target="_blank">Distracted Driving Monitor</a><br> </li>
+            <li > <a  href="https://www.pyimagesearch.com/2017/10/23/raspberry-pi-facial-landmarks-drowsiness-detection-with-opencv-and-dlib/" target="_blank">Raspberry Pi: Facial Landmarks + Drowsiness Detection with Opencv and Dlib</a><br> </li>
+            <li > <a  href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ggaa42a3e6ef26247da787bf34030ed772cad0c5199ae8637a6b195062fea4789fa9" target="_blank">Miscellaneous Image Transformations</a><br> </li>
+            <li > <a  href="https://cdn-shop.adafruit.com/datasheets/MPR121.pdf" target="_blank"> Proximity Capacitive Touch Sensor Controller MPR121</a><br> </li>
+            <li > <a  href="https://github.com/TymanLS/pi-cardash" target="_blank"> TymanLS/PI-Cardash: A Raspberry Pi Based Car Dashboard</a><br> </li>
           </ol>
       </div>
 
