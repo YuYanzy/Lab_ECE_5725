@@ -112,7 +112,23 @@
                 <ol style="text-align:justify">
 
                   <li><strong> Drowsiness Detection</strong><br />
-                    <p>The drowsiness detection feature requires the use of a Pi camera. We use OpenCV to detect a face and extract facial features from the camera. Then we apply Dlib's facial landmark detection to detect the eyes and use the Eye Aspect Ratio (EAR) algorithm, which was introduced by Soukupová and Čech’s in their 2017 paper<sup><a href="#reference">[1]</a></sup>, to determine whether the driver is drowsy.</p>
+                    
+
+                    <p>The drowsiness detection feature requires the use of a Pi camera. At the suggestion of a previous team, we installed OpenCV using this tutorial. After installation (~1 hour), it was imported via “import cv2”. DLib was simply installed using “pip install dlib”. </p>
+                    <p>The picamera was set up using the following commands:</p>
+                    
+                    <div >
+                      <p><code>cap =cv2.VideoCapture(0)</code></p>
+                      <p><code>cap.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc('M','J','P','G'))</code></p>
+                    </div>
+
+                    <p>Following this, we call dlib to initialize the face detection and facial landmark prediction</p>
+                    <div >
+                      <p><code>detector    = dlib.get_frontal_face_detector()</code></p>
+                      <p><code>predictor   = dlib.shape_predictor(shape_predictor_path)</code></p>
+                    </div>
+
+                    <p>We use the Eye Aspect Ratio (EAR) algorithm, which was introduced by Soukupová and Čech’s in their 2017 paper<sup><a href="#reference">[1]</a></sup>, to determine whether the driver is drowsy.</p>
                     <p>The EAR value can be calculated using the following formula. When the eyes are fully open, the EAR value should be larger than a pre-defined threshold. And when the eyes are closed, the EAR value decreases and tends to zero, which means that it must be less than our pre-defined threshold. </p>
                     <p style="text-align:center">
                       <img style="max-height: 300px;"  src="pics/formula.png" alt="formula" /> 
@@ -320,6 +336,8 @@
             <li > <a  href="https://docs.opencv.org/3.4/d7/d1b/group__imgproc__misc.html#ggaa42a3e6ef26247da787bf34030ed772cad0c5199ae8637a6b195062fea4789fa9" target="_blank">Miscellaneous Image Transformations</a><br> </li>
             <li > <a  href="https://cdn-shop.adafruit.com/datasheets/MPR121.pdf" target="_blank"> Proximity Capacitive Touch Sensor Controller MPR121</a><br> </li>
             <li > <a  href="https://github.com/TymanLS/pi-cardash" target="_blank"> TymanLS/PI-Cardash: A Raspberry Pi Based Car Dashboard</a><br> </li>
+            <li > <a  href="https://www.raspberrypi.com/documentation/accessories/camera.html" target="_blank">Pi Camera Documentation</a><br> </li>
+            
           </ol>
       </div>
 
